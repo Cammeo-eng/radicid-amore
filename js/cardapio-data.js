@@ -1,0 +1,513 @@
+/* ============================================================
+   RADICI D'AMORE · DADOS DO SITE
+
+   COMO ATUALIZAR (5 linhas)
+   1. Prato do mês ....... escreva o nome em CONFIG.pratoDoMes (abaixo). Vazio = "consulte o prato deste mês".
+   2. Prato do dia ....... edite o dia em CARDAPIO > "Prato do dia" > itens (nome e descricao). O site
+                           destaca sozinho o prato de hoje (fuso America/Sao_Paulo).
+   3. Preços ............. edite o texto do preço no próprio item (ex.: "preco": "R$ 10"). O montador
+                           "Monte sua massa" lê os mesmos valores, então o total acompanha.
+   4. Fluxo recomendado: edite o radici-cardapio.json e rode  node tools/gerar-cardapio-data.js
+      (o bloco CONFIG daqui nunca é sobrescrito). Sem Node? Edite direto o cardápio abaixo, mas
+      então NÃO rode o gerador, ou ele volta ao que está no JSON.
+   5. Confira JSON x site:  node tools/check-precos.js
+   ============================================================ */
+
+const CONFIG = {
+  // Prato do mês (R$ 47,90). Ex.: "Lasanha de abóbora com ricota". Vazio mostra "consulte o prato deste mês".
+  pratoDoMes: "",
+
+  // Contatos
+  whatsappNumero: "5541984867724",       // só dígitos, com 55 + DDD
+  instagramUrl: "https://instagram.com/radicidamore",
+
+  // Botão "Enviar pedido pelo WhatsApp" do montador.
+  // [[PREENCHER: confirmar se a casa recebe pedidos pelo WhatsApp]]
+  // true  = botão abre o WhatsApp com o pedido montado
+  // false = botão vira "Mostrar ao atendente" e só exibe o resumo em tela cheia
+  pedidosPorWhatsapp: true,
+
+  // [[PREENCHER: link iFood]]  (deixe "" enquanto não tiver; o site mostra o marcador)
+  ifoodUrl: "",
+
+  // Endereço: aparece no rodapé, vira link para o Google Maps e gera o mapa embutido sozinho.
+  endereco: "R. Jequitibá, 105 - Loja 25, Fazenda Rio Grande - PR, 83820-004",
+
+  // [[PREENCHER: horários]]  (ex.: "Ter a dom · 11h30 às 22h") — [[PREENCHER: confirmar dias e horário de funcionamento]]
+  horarios: ""
+};
+
+/* ===== CARDÁPIO · gerado de radici-cardapio.json (não edite abaixo desta linha) ===== */
+const CARDAPIO = {
+  "restaurante": {
+    "nome": "Radici d'Amore",
+    "tipo": "Bistrò · Massas frescas",
+    "instagram": "@radicidamore",
+    "whatsapp": "(41) 9 8486-7724",
+    "delivery": "iFood",
+    "recados": [
+      "Estamos muito felizes em receber você em nossa casa!",
+      "Trabalhamos com produtos artesanais e frescos, seu preparo pode demandar cerca de 15 a 25 minutos para finalizar.",
+      "Pagamentos são feitos diretamente no balcão.",
+      "Consulte disponibilidade dos nossos produtos!"
+    ]
+  },
+  "identidade_visual": {
+    "cores": {
+      "creme_fundo": "#F4E6CD",
+      "verde_oliva_textos": "#344817",
+      "vermelho_vinho_destaques": "#9E1C19",
+      "verde_medio_ilustracoes": "#5F6B40"
+    },
+    "fontes_no_arquivo": {
+      "serifada_titulos_e_textos": "Fonde",
+      "cursiva_assinatura": "Astina"
+    },
+    "regra_fontes": "Usar SOMENTE as fontes originais (Fonde e Astina) via @font-face com os arquivos em /fonts. Não substituir.",
+    "padrao_de_titulo": "Palavra em serifada verde + palavra em cursiva vermelha sobreposta (ex.: 'Prato do' + 'dia', 'Monte sua' + 'massa')",
+    "elementos": "Padrão de fundo ilustrado a traço: massas (farfalle, ravioli, empanada), taças de vinho, corações vermelhos e folhas — verde sobre creme"
+  },
+  "cardapio": [
+    {
+      "categoria": "Antipasto",
+      "itens": [
+        {
+          "nome": "Bolinho de Carne - Assado",
+          "descricao": "Bolinho de carne moída com especiarias",
+          "preco": "R$ 10",
+          "unidade": "und."
+        },
+        {
+          "nome": "Polenta frita",
+          "descricao": "Polenta palito com maionese d'amore",
+          "precos": {
+            "Porção pequena": "R$ 17",
+            "Porção grande": "R$ 29"
+          }
+        },
+        {
+          "nome": "Batata frita",
+          "descricao": "Batata palito com maionese d'amore",
+          "precos": {
+            "Porção pequena": "R$ 19",
+            "Porção grande": "R$ 32"
+          }
+        }
+      ]
+    },
+    {
+      "categoria": "Da Itália à Argentina: Empanadas Argentinas",
+      "descricao": "Com uma massa folhada leve e crocante que derrete na boca.",
+      "preco_unico": "R$ 14",
+      "itens": [
+        {
+          "nome": "Carne especial",
+          "descricao": "Carne, ovo cozido, cebola, um toque de barbecue e finalizado com temperos frescos"
+        },
+        {
+          "nome": "Carne com cheddar",
+          "descricao": "Carne, cheddar, pepino agridoce e especiarias"
+        },
+        {
+          "nome": "Frango Bechamel",
+          "descricao": "Frango desfiado com molho bechamel e um pouco de cebola"
+        },
+        {
+          "nome": "Porco e mostarda",
+          "descricao": "Porco desfiado, cebola, mostarda, mel e especiarias"
+        },
+        {
+          "nome": "Linguiça parrilheira",
+          "descricao": "Linguiça toscana, cebola e requeijão"
+        },
+        {
+          "nome": "Espinafre e ricota",
+          "descricao": "Espinafre, ricota e requeijão"
+        },
+        {
+          "nome": "Gorgonzola e nozes",
+          "descricao": "Queijo gorgonzola, mussarela e nozes"
+        },
+        {
+          "nome": "Queijo argentino e cebola",
+          "descricao": "Queijo mussarela autêntico 100% argentino, cebola e finalizado com temperos frescos"
+        }
+      ]
+    },
+    {
+      "categoria": "Prato do dia",
+      "descricao": "Todos os dias um prato promocional. Serve 1 pessoa.",
+      "preco_unico": "R$ 31,90",
+      "itens": [
+        {
+          "dia": "Segunda",
+          "nome": "Spaghetti ao molho bechamel e peito de frango",
+          "descricao": "Massa fresca ao molho branco e peito de frango"
+        },
+        {
+          "dia": "Terça",
+          "nome": "Macarrão ao pomodoro e tiras de carne",
+          "descricao": "Massa fresca ao molho de tomate e especiarias, servida com tiras de carne bovina"
+        },
+        {
+          "dia": "Quarta",
+          "nome": "Ravioli ou Tortéi ao molho de frango",
+          "descricao": "Massa fresca recheada de creme de queijos ou de moranga cabotiá, servida ao molho pomodoro e frango em pedaços"
+        },
+        {
+          "dia": "Quinta",
+          "nome": "À carbonara",
+          "descricao": "Massa fresca tipo talharim, spaghetti ou macarrão, servida com bacon, emulsão de ovos e queijo parmesão"
+        },
+        {
+          "dia": "Sexta",
+          "nome": "Lasanha à bolonhesa, frango, queijos ou queijos com bacon",
+          "descricao": "Massa fresca em camadas intercaladas ao molho bolonhesa | ao molho de frango | ao molho de queijos | ao molho de queijos com bacon. Somente na sexta-feira."
+        }
+      ]
+    },
+    {
+      "categoria": "Monte sua massa",
+      "passo_1_massas": [
+        {
+          "nome": "Spaghetti"
+        },
+        {
+          "nome": "Macarrão"
+        },
+        {
+          "nome": "Talharim"
+        },
+        {
+          "nome": "Ravioli",
+          "obs": "recheado de creme de queijos"
+        },
+        {
+          "nome": "Tortéi",
+          "obs": "recheado de moranga cabotiá"
+        }
+      ],
+      "passo_2_molhos": [
+        {
+          "nome": "Molho pomodoro",
+          "preco": "R$ 35"
+        },
+        {
+          "nome": "Molho bechamel",
+          "preco": "R$ 35"
+        },
+        {
+          "nome": "Molho de frango",
+          "preco": "R$ 35"
+        },
+        {
+          "nome": "À caprese",
+          "preco": "R$ 35"
+        },
+        {
+          "nome": "À alho e óleo",
+          "preco": "R$ 35"
+        },
+        {
+          "nome": "Molho carbonara",
+          "preco": "R$ 37"
+        },
+        {
+          "nome": "Molho ragu",
+          "preco": "R$ 37"
+        },
+        {
+          "nome": "Molho de queijos",
+          "preco": "R$ 37"
+        },
+        {
+          "nome": "Molho bolonhesa",
+          "preco": "R$ 37"
+        },
+        {
+          "nome": "Molho alfredo",
+          "preco": "R$ 37"
+        }
+      ],
+      "passo_3_adicionais": [
+        {
+          "nome": "Bacon",
+          "preco": "+ R$ 6"
+        },
+        {
+          "nome": "Calabresa ralada",
+          "preco": "+ R$ 6"
+        },
+        {
+          "nome": "Peito de frango",
+          "preco": "+ R$ 10"
+        },
+        {
+          "nome": "Bolinho de carne",
+          "preco": "+ R$ 10"
+        },
+        {
+          "nome": "Tiras de carne",
+          "preco": "+ R$ 17"
+        },
+        {
+          "nome": "Contrafilé",
+          "preco": "+ R$ 23"
+        }
+      ]
+    },
+    {
+      "categoria": "Prato destaque",
+      "itens": [
+        {
+          "nome": "Prato do mês",
+          "descricao": "Todos os meses um prato destaque. Serve 1 pessoa.",
+          "preco": "R$ 47,90"
+        },
+        {
+          "nome": "Ravioli de carne desfiada",
+          "selo": "Coroado um ano",
+          "descricao": "Massa fresca tipo ravioli recheado de carne desfiada cozida por 12 horas, ao molho da carne com um toque de vinho ou de leite de coco, finalizado com ervilhas verdes e queijo. Serve 1 pessoa.",
+          "preco": "R$ 53,90"
+        }
+      ]
+    },
+    {
+      "categoria": "Panquecas Radici",
+      "descricao": "Escolha o recheio. Serve 1 pessoa.",
+      "preco_unico": "R$ 34,90",
+      "recheios": [
+        "Molho de queijos com bacon",
+        "Bolonhesa",
+        "Frango",
+        "Ragu de carne",
+        "Romeu & Julieta",
+        "Chocolate ao leite"
+      ]
+    },
+    {
+      "categoria": "Risotto speciale",
+      "itens": [
+        {
+          "rotulo": "Risotto uno",
+          "nome": "Risotto de queijos",
+          "descricao": "Risotto cremoso com parmesão, mussarela e gorgonzola. Serve 1 pessoa.",
+          "preco": "R$ 47,90"
+        },
+        {
+          "rotulo": "Risotto due",
+          "nome": "Risotto alho-poró com limão siciliano",
+          "descricao": "Risotto suave com alho-poró e toque refrescante de limão siciliano. Serve 1 pessoa.",
+          "preco": "R$ 47,90"
+        },
+        {
+          "rotulo": "Risotto tre",
+          "nome": "Risotto de linguiça e alho-poró",
+          "descricao": "Risotto cremoso com linguiça blumenau e alho-poró. Serve 1 pessoa.",
+          "preco": "R$ 47,90"
+        }
+      ]
+    },
+    {
+      "categoria": "Piatto per due",
+      "itens": [
+        {
+          "rotulo": "Piatto uno",
+          "nome": "Massa fresca ao molho de queijos e contrafilé",
+          "descricao": "Massa fresca tipo talharim, macarrão ou spaghetti ao molho de quatro queijos, acompanha contrafilé grelhado. Serve 2 pessoas.",
+          "preco": "R$ 105",
+          "obs": "Massa tipo ravioli ou tortéi + R$ 5"
+        },
+        {
+          "rotulo": "Piatto due",
+          "nome": "Massa fresca ao molho pomodoro e frango",
+          "descricao": "Talharim, macarrão ou spaghetti ao molho pomodoro, acompanha filés de frango. Serve 2 pessoas.",
+          "preco": "R$ 95",
+          "obs": "Massa tipo ravioli ou tortéi + R$ 5"
+        }
+      ]
+    },
+    {
+      "categoria": "PF aconchego",
+      "itens": [
+        {
+          "nome": "PF aconchego",
+          "descricao": "Arroz, feijão, farofa caseira, salada e consulte proteína disponível. Serve 1 pessoa.",
+          "preco": "R$ 28,90"
+        }
+      ]
+    },
+    {
+      "categoria": "Prato kids",
+      "itens": [
+        {
+          "nome": "Massa fresca",
+          "descricao": "Massa fresca tipo macarrão, acompanha molho bolonhesa, bechamel ou pomodoro.",
+          "preco": "Consultar"
+        },
+        {
+          "nome": "PF aconchego kids",
+          "descricao": "Arroz, feijão, tiras de carne ou peito de frango.",
+          "preco": "R$ 20,90"
+        }
+      ]
+    },
+    {
+      "categoria": "Adicionais",
+      "itens": [
+        {
+          "nome": "Arroz individual",
+          "preco": "R$ 5"
+        },
+        {
+          "nome": "Feijão individual",
+          "preco": "R$ 5"
+        },
+        {
+          "nome": "Farofa individual",
+          "preco": "R$ 5"
+        },
+        {
+          "nome": "Salada do dia - individual",
+          "preco": "R$ 8"
+        },
+        {
+          "nome": "Salada do dia - prato",
+          "preco": "R$ 13"
+        }
+      ]
+    },
+    {
+      "categoria": "Dolce",
+      "obs": "Nossas sobremesas são todas artesanais, consulte a disponibilidade.",
+      "itens": [
+        {
+          "nome": "Tiramisù",
+          "descricao": "Bolacha champanhe, creme de chocolate com café e creme de baunilha",
+          "preco": "R$ 13,90",
+          "unidade": "und."
+        },
+        {
+          "nome": "Torta Mineira do Sul",
+          "descricao": "Bolo de pão de ló, recheada com um creme feito à base de leite condensado e abacaxi, finalizado com chantilly de nata",
+          "preco": "R$ 13,90",
+          "unidade": "und."
+        },
+        {
+          "nome": "Brownie de chocolate",
+          "descricao": "Bolo de textura densa e úmida, com uma crosta levemente crocante",
+          "preco": "R$ 16",
+          "unidade": "und."
+        },
+        {
+          "nome": "Brownie de chocolate c/ dulce de leche",
+          "descricao": "Bolo de textura densa e úmida, com uma crosta levemente crocante e calda de dulce de leche",
+          "preco": "R$ 18",
+          "unidade": "und."
+        },
+        {
+          "nome": "Brownie de chocolate c/ sorvete",
+          "descricao": "Bolo de textura densa e úmida, com uma crosta levemente crocante, com uma bola de sorvete de creme e calda de dulce de leche",
+          "preco": "R$ 22",
+          "unidade": "und."
+        },
+        {
+          "nome": "Pudim de leite",
+          "descricao": "Leite condensado, leite e ovos, finalizado com calda de caramelo",
+          "preco": "R$ 10",
+          "unidade": "fatia"
+        },
+        {
+          "nome": "Bolo caseiro",
+          "descricao": "Consulte sabor disponível",
+          "preco": "R$ 10",
+          "unidade": "fatia"
+        },
+        {
+          "nome": "Alfajor",
+          "descricao": "Chocolate preto | branco | maisena, recheado de dulce de leche argentino",
+          "preco": "R$ 12",
+          "unidade": "und."
+        },
+        {
+          "nome": "Medialuna",
+          "descricao": "Pãozinho tradicional argentino, feito de massa folhada com manteiga, macia e doce",
+          "preco": "R$ 8,50",
+          "unidade": "und."
+        },
+        {
+          "nome": "Medialuna c/ dulce de leche",
+          "descricao": "Pãozinho tradicional argentino, feito de massa folhada com manteiga, macia e doce, recheada com dulce de leche argentino",
+          "preco": "R$ 10",
+          "unidade": "und."
+        }
+      ]
+    },
+    {
+      "categoria": "Bevande",
+      "itens": [
+        {
+          "nome": "Expresso",
+          "preco": "R$ 4,50"
+        },
+        {
+          "nome": "Água mineral",
+          "obs": "com ou sem gás",
+          "preco": "R$ 4,50"
+        },
+        {
+          "nome": "Suco Kapo",
+          "preco": "R$ 3,50"
+        },
+        {
+          "nome": "Suco natural",
+          "obs": "consultar sabores disponíveis",
+          "preco": "R$ 15"
+        },
+        {
+          "nome": "Suco de uva integral",
+          "obs": "tinto ou branco",
+          "preco": "R$ 15"
+        },
+        {
+          "nome": "Soda italiana Monin",
+          "obs": "consultar sabores disponíveis",
+          "preco": "R$ 17"
+        },
+        {
+          "nome": "Refrigerante 200ml",
+          "preco": "R$ 3,50"
+        },
+        {
+          "nome": "Refrigerante lata ou chá copo",
+          "preco": "R$ 6"
+        },
+        {
+          "nome": "Refrigerante 600ml",
+          "preco": "R$ 8,50"
+        },
+        {
+          "nome": "Energético",
+          "preco": "R$ 12,50"
+        },
+        {
+          "nome": "Taça de vinho",
+          "obs": "vinho colonial da Serra Gaúcha",
+          "preco": "R$ 18,50"
+        },
+        {
+          "nome": "Cerveja lata - Brahma puro malte",
+          "preco": "R$ 8,50"
+        },
+        {
+          "nome": "Cerveja lata - Brahma",
+          "preco": "R$ 6,50"
+        },
+        {
+          "nome": "Cerveja lata - Antarctica original",
+          "preco": "R$ 6,50"
+        }
+      ]
+    }
+  ]
+};

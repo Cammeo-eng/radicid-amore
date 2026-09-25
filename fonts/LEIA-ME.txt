@@ -1,0 +1,19 @@
+FONTES ORIGINAIS DA MARCA — Radici d'Amore
+
+Coloque aqui os arquivos das duas fontes, com EXATAMENTE estes nomes
+(maiúscula no F e no A; o GitHub Pages diferencia maiúsculas de minúsculas):
+
+  Fonde.woff2    (serifada: títulos, nomes de pratos, textos, preços)
+  Astina.woff2   (cursiva de assinatura: sempre em vinho)
+
+Se você só tem .otf ou .ttf, pode colocar assim mesmo:
+  Fonde.otf / Fonde.ttf / Fonde.woff
+  Astina.otf / Astina.ttf / Astina.woff
+O css/style.css já procura woff2, woff, otf e ttf, nessa ordem.
+
+Enquanto os arquivos não estiverem aqui, o site usa fontes genéricas só para não quebrar,
+e os títulos ficam com outra aparência. NÃO troque por outra fonte: a identidade é fixa.
+
+Depois que as fontes entrarem, confira os títulos "assinatura" (palavra em Fonde + cursiva Astina
+sobreposta). Se a cursiva ficar mais alta ou mais baixa que no cardápio impresso, ajuste só as
+duas variáveis --ta-sobrepor e --ta-recuo no topo do css/style.css.

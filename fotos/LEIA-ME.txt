@@ -1,0 +1,24 @@
+FOTOS DO SITE — Radici d'Amore
+
+Basta soltar o arquivo aqui, com EXATAMENTE este nome (letras minúsculas, .jpg).
+Enquanto a foto não existir, o site mostra um quadro elegante no lugar (placeholder).
+
+  hero.jpg                       capa (topo do site)
+  dia-segunda.jpg                prato do dia de segunda
+  dia-terca.jpg                  prato do dia de terça
+  dia-quarta.jpg                 prato do dia de quarta
+  dia-quinta.jpg                 prato do dia de quinta
+  dia-sexta.jpg                  prato do dia de sexta (lasanha)
+  empanadas.jpg                  empanadas argentinas
+  ravioli-carne-desfiada.jpg     prato assinatura "Coroado um ano"
+  panquecas.jpg                  panquecas Radici (aparece no cardápio)
+  nossa-casa.jpg                 ambiente / família
+  pet-friendly.jpg               foto do cachorro (bloco "Pet friendly")
+
+Dicas
+- Tamanho ideal: 1600 px de largura, formato horizontal (proporção 4:3), até ~300 KB.
+  Reduza no https://squoosh.app antes de colocar (site mais rápido no celular).
+- A foto é cortada para preencher o quadro; deixe o assunto (o prato, o cachorro) no centro.
+- Depois de colocar cada foto, ajuste o texto alternativo (alt) dela no index.html
+  (ou em js/main.js, no caso dos pratos do dia) descrevendo o que aparece de verdade.
+  Ex.: pet-friendly.jpg -> alt="Cachorro à mesa no Radici d'Amore" (troque pela descrição real).

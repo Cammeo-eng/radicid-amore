@@ -1,0 +1,1102 @@
+/* ==========================================================================
+   RADICI D'AMORE · style.css
+
+   REGRA DA MARCA: só existem 3 cores neste arquivo (creme, verde, vinho).
+   Sem gradientes, sem opacity/rgba para "suavizar" texto, sem modo escuro.
+   A hierarquia vem do tamanho e da fonte, nunca de outro tom.
+
+   Índice
+    0. Fontes                     10. Prato do dia   
+    1. Variáveis                  11. Empanadas
+    2. Base                       12. Prato destaque
+    3. Utilitários                13. Monte sua massa
+    4. Título assinatura          14. Cardápio completo
+    5. Botões e links             15. Nossa casa
+    6. Fotos e placeholders       16. Recados da casa
+    7. Header e navegação         17. Rodapé / contato
+    8. Hero                       18. Animações
+    9. Seções e faixas            19. Diálogo
+   ========================================================================== */
+
+
+/* ==========================================================================
+   0. FONTES ORIGINAIS DA MARCA (Fonde e Astina) — nunca trocar por outra família
+   ========================================================================== */
+@font-face {
+  font-family: "Fonde";
+  src: url("../fonts/Fonde.woff2") format("woff2"),
+       url("../fonts/Fonde.woff") format("woff"),
+       url("../fonts/Fonde.otf") format("opentype"),
+       url("../fonts/Fonde.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Astina";
+  src: url("../fonts/Astina.woff2") format("woff2"),
+       url("../fonts/Astina.woff") format("woff"),
+       url("../fonts/Astina.otf") format("opentype"),
+       url("../fonts/Astina.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+/* ==========================================================================
+   1. VARIÁVEIS
+   ========================================================================== */
+:root {
+  color-scheme: light;
+
+  --creme: #F4E6CD;
+  --verde: #344817;
+  --vinho: #9E1C19;
+
+  /* O que vem depois de "Fonde"/"Astina" só segura o layout enquanto a fonte carrega. */
+  --f-serif: "Fonde", Georgia, "Times New Roman", serif;
+  --f-cursiva: "Astina", "Segoe Script", "Brush Script MT", "Snell Roundhand", cursive;
+
+  --gutter: 1.25rem;
+  --max: 68.75rem;                 /* 1100px de conteúdo */
+  --header-h: 4.25rem;
+  --chips-h: 3.25rem;
+  --r-foto: 1.75rem;               /* 28px: canto arredondado de um lado só */
+  --r-caixa: 0.75rem;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Ajuste fino da assinatura (cursiva sobreposta). Se a Astina real ficar
+     mais alta/baixa que o esperado, mexa só aqui. */
+  --ta-sobrepor: 0.26;             /* quanto a cursiva invade a 1ª palavra (em em da cursiva) */
+  --ta-recuo: 1.05em;              /* quanto a cursiva se desloca para o lado */
+}
+
+@media (min-width: 48rem) {
+  :root { --gutter: 1.75rem; }
+}
+@media (min-width: 64rem) {
+  :root { --header-h: 4.75rem; --gutter: 2rem; --chips-h: 3.5rem; }
+}
+
+
+/* ==========================================================================
+   2. BASE
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+
+body {
+  margin: 0;
+  background: var(--creme);
+  color: var(--verde);
+  font-family: var(--f-serif);
+  font-size: 1.0625rem;            /* 17px */
+  line-height: 1.6;
+  font-synthesis: none;            /* nada de negrito/itálico falso: a hierarquia é por tamanho */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;                /* clip (e não hidden) para não quebrar o position: sticky */
+}
+body.menu-aberto { overflow: hidden; }
+
+h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 400; line-height: 1.15; }
+p, ul, ol, figure, dl, dd { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+strong { font-weight: 400; }
+img, svg { display: block; max-width: 100%; }
+img { height: auto; }
+
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.22em; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+
+:focus-visible { outline: 2px solid var(--verde); outline-offset: 3px; }
+::selection { background: var(--vinho); color: var(--creme); }
+
+[hidden] { display: none !important; }
+
+
+/* ==========================================================================
+   3. UTILITÁRIOS
+   ========================================================================== */
+.contido {
+  width: 100%;
+  max-width: calc(var(--max) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.pular {
+  position: fixed; left: 1rem; top: -6rem; z-index: 300;
+  background: var(--verde); color: var(--creme);
+  padding: 0.75rem 1.25rem; border-radius: var(--r-caixa); text-decoration: none;
+}
+.pular:focus { top: 1rem; }
+
+.icone {
+  width: 1.5rem; height: 1.5rem; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* Marcador de informação que ainda falta (cliente precisa preencher) */
+.preencher {
+  color: var(--vinho);
+  border-bottom: 1px dashed var(--vinho);
+  font-size: 0.95em;
+}
+
+.aviso-noscript { padding: calc(var(--header-h) + 1.5rem) var(--gutter) 1.5rem; text-align: center; }
+
+/* Faixas do padrão ilustrado (massas, taças, empanadas, folhas e corações) */
+.faixa-padrao {
+  background: url("../assets/padrao-fundo-tile.png") repeat center top / 180px auto;
+}
+.faixa-padrao--hero { height: 8rem; border-bottom: 1px solid var(--verde); }
+.faixa-padrao--fina { height: 5.5rem; border-block: 1px solid var(--verde); }
+@media (min-width: 48rem) {
+  .faixa-padrao--hero { height: 10.5rem; }
+  .faixa-padrao--fina { height: 6.5rem; }
+}
+
+
+/* ==========================================================================
+   4. TÍTULO ASSINATURA
+   Uma palavra em Fonde verde + uma em Astina vinho, maior, deslocada para
+   baixo e invadindo levemente a primeira.
+   ========================================================================== */
+.titulo-assinatura {
+  --ta-tam: clamp(2rem, 1.3rem + 3vw, 3.75rem);
+  font-size: var(--ta-tam);
+  line-height: 1;
+}
+.ta-fonde {
+  display: block;
+  font-family: var(--f-serif);
+  color: var(--verde);
+  line-height: 1;
+}
+.ta-astina {
+  display: block;
+  position: relative;
+  z-index: 1;
+  font-family: var(--f-cursiva);
+  color: var(--vinho);
+  font-size: 2.1em;
+  line-height: 0.95;
+  margin-top: calc(var(--ta-sobrepor) * -1em);
+  margin-left: var(--ta-recuo);
+  padding-bottom: 0.08em;          /* respiro para as laçadas da cursiva não cortarem */
+  white-space: nowrap;             /* a cursiva não quebra; se não couber, o JS encolhe (ajustarCursivas) */
+  width: fit-content;
+  max-width: calc(100% - var(--ta-recuo));
+}
+.titulo-assinatura--dir { text-align: right; }
+.titulo-assinatura--dir .ta-astina { margin-left: 0; margin-right: var(--ta-recuo); }
+.titulo-assinatura--centro { text-align: center; }
+.titulo-assinatura--centro .ta-astina { margin-left: 0; transform: translateX(0.35em); }
+
+/* "Da Itália à Argentina...": a cursiva aparece duas vezes */
+.titulo-assinatura--duplo { --ta-tam: min(3.25rem, 6vw); }
+.titulo-assinatura--duplo .ta-linha { display: block; white-space: nowrap; line-height: 1; }
+.titulo-assinatura--duplo .ta-fonde,
+.titulo-assinatura--duplo .ta-astina { display: inline; }
+.titulo-assinatura--duplo .ta-astina { margin: 0 0 0 -0.06em; padding: 0; line-height: 1; }
+.titulo-assinatura--duplo .ta-linha + .ta-linha { margin-top: -0.2em; padding-left: 1.1em; }
+.ta-reticencias { margin-left: 0.05em; }
+
+/* Antipasto · Dolce · Bevande: só Fonde, com linha verde embaixo */
+.titulo-simples {
+  font-family: var(--f-serif);
+  font-size: clamp(2rem, 1.3rem + 3vw, 3.25rem);
+  line-height: 1.05;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--verde);
+}
+
+
+/* ==========================================================================
+   5. BOTÕES E LINKS
+   ========================================================================== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 2.75rem; padding: 0.7rem 1.75rem;
+  border: 1.5px solid var(--verde); border-radius: 999px;
+  font-family: var(--f-serif); font-size: 1.0625rem; line-height: 1.2;
+  text-align: center; text-decoration: none; cursor: pointer;
+  transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
+}
+.btn--cheio { background: var(--verde); color: var(--creme); }
+.btn--contorno { background: transparent; color: var(--verde); }
+.btn--pequeno { padding: 0.5rem 1.2rem; font-size: 1rem; }
+@media (hover: hover) {
+  .btn--cheio:hover { background: var(--creme); color: var(--verde); }
+  .btn--contorno:hover { background: var(--verde); color: var(--creme); }
+}
+.btn[aria-disabled="true"] {
+  background: transparent; color: var(--verde); border-style: dashed; cursor: not-allowed;
+}
+@media (hover: hover) {
+  .btn[aria-disabled="true"]:hover { background: transparent; color: var(--verde); }
+}
+
+.link-btn {
+  min-height: 2.75rem; padding: 0 0.5rem;
+  text-decoration: underline; text-underline-offset: 0.22em; text-decoration-thickness: 1px;
+}
+
+.link-seta {
+  display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem;
+  min-height: 2.75rem; text-decoration: none; border-bottom: 1px dotted var(--verde);
+}
+.icone--seta { width: 1.15rem; height: 1.15rem; transition: transform 0.25s var(--ease); }
+@media (hover: hover) { .link-seta:hover .icone--seta { transform: translateX(4px); } }
+
+
+/* ==========================================================================
+   6. FOTOS E PLACEHOLDERS
+   Foto: canto arredondado só de um lado, alternando (--esq / --dir).
+   Sem arquivo em /fotos, aparece o placeholder (moldura do padrão + nome do prato).
+   ========================================================================== */
+.foto {
+  position: relative;
+  aspect-ratio: var(--ar, 4 / 3);
+  overflow: hidden;
+  background: var(--creme);
+}
+.foto--esq { border-radius: 0 var(--r-foto) var(--r-foto) 0; }
+.foto--dir { border-radius: var(--r-foto) 0 0 var(--r-foto); }
+
+.foto__img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
+}
+.js .foto__img { opacity: 0; transition: opacity 0.5s var(--ease); }
+.js .foto.tem-foto .foto__img { opacity: 1; }
+
+.foto__vazio {
+  position: absolute; inset: 0;
+  padding: 0.85rem;
+  background: url("../assets/padrao-fundo-tile.png") repeat center / 150px auto;
+  border: 1px solid var(--verde);
+  border-radius: inherit;
+}
+.foto__vazio-in {
+  height: 100%;
+  display: grid; place-items: center;
+  padding: 1rem;
+  background: var(--creme);
+  border: 1px solid var(--verde);
+  border-radius: inherit;
+  text-align: center;
+}
+.foto__nome {
+  font-family: var(--f-cursiva);
+  color: var(--vinho);
+  font-size: clamp(1.75rem, 1.1rem + 2.6vw, 3.25rem);
+  line-height: 1.1;
+}
+
+/* No celular a foto vai até a borda da tela, como no impresso */
+@media (max-width: 47.99rem) {
+  .foto--esq { margin-left: calc(var(--gutter) * -1); }
+  .foto--dir { margin-right: calc(var(--gutter) * -1); }
+}
+
+
+/* ==========================================================================
+   7. HEADER E NAVEGAÇÃO
+   ========================================================================== */
+.site-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--creme);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s var(--ease);
+}
+.site-header.is-scrolled { border-bottom-color: var(--verde); }
+
+.site-header__inner {
+  position: relative;
+  height: var(--header-h);
+  display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+}
+
+.marca { position: relative; z-index: 3; display: flex; align-items: center; min-height: 2.75rem; line-height: 0; }
+.marca img { height: 2.375rem; width: auto; }
+@media (min-width: 64rem) { .marca img { height: 2.75rem; } }
+
+/* Botão hambúrguer */
+.menu-toggle {
+  position: relative; z-index: 3;
+  width: 2.75rem; height: 2.75rem;
+  display: grid; place-items: center;
+  margin-right: -0.5rem;
+}
+.menu-toggle__barras,
+.menu-toggle__barras::before,
+.menu-toggle__barras::after {
+  display: block; width: 1.625rem; height: 2px; background: var(--verde);
+  transition: transform 0.3s var(--ease), background-color 0.2s;
+}
+.menu-toggle__barras { position: relative; }
+.menu-toggle__barras::before,
+.menu-toggle__barras::after { content: ""; position: absolute; left: 0; }
+.menu-toggle__barras::before { top: -0.5rem; }
+.menu-toggle__barras::after { top: 0.5rem; }
+.menu-toggle[aria-expanded="true"] .menu-toggle__barras { background: transparent; }
+.menu-toggle[aria-expanded="true"] .menu-toggle__barras::before { transform: translateY(0.5rem) rotate(45deg); }
+.menu-toggle[aria-expanded="true"] .menu-toggle__barras::after { transform: translateY(-0.5rem) rotate(-45deg); }
+
+/* Mobile: painel creme em tela cheia */
+.site-nav {
+  position: fixed; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem;
+  padding: calc(var(--header-h) + 1rem) var(--gutter) 9.5rem;
+  background: var(--creme);
+  overflow-y: auto;
+  visibility: hidden; opacity: 0;
+  transition: opacity 0.3s var(--ease), visibility 0s linear 0.3s;
+}
+.site-nav.is-open { visibility: visible; opacity: 1; transition-delay: 0s; }
+.site-nav::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 7.5rem;
+  background: url("../assets/padrao-fundo-tile.png") repeat center top / 180px auto;
+  border-top: 1px solid var(--verde);
+}
+.site-nav__lista { display: grid; gap: 0.25rem; text-align: center; }
+.site-nav__lista a {
+  display: block; padding: 0.55rem 1rem;
+  font-size: clamp(1.75rem, 1.3rem + 2vw, 2.25rem); line-height: 1.2; text-decoration: none;
+}
+
+@media (min-width: 72rem) {
+  .menu-toggle { display: none; }
+  .site-nav {
+    position: static; z-index: auto; flex-direction: row; gap: 2rem;
+    padding: 0; background: none; overflow: visible;
+    visibility: visible; opacity: 1; transition: none;
+  }
+  .site-nav::after { display: none; }
+  .site-nav__lista { display: flex; gap: 1.75rem; }
+  .site-nav__lista a { padding: 0.5rem 0; font-size: 1.0625rem; }
+}
+
+
+/* ==========================================================================
+   8. HERO · Bem-vindo!
+   ========================================================================== */
+.hero { padding-top: var(--header-h); }
+
+.hero__grade {
+  display: grid; gap: 2.5rem;
+  padding-block: clamp(2.5rem, 6vw, 5rem) clamp(3rem, 7vw, 6rem);
+}
+@media (min-width: 64rem) {
+  .hero__grade { grid-template-columns: 1.05fr 1fr; align-items: center; gap: 4rem; }
+}
+
+.hero__lead {
+  margin-top: 0.75rem;
+  font-size: clamp(1.5rem, 1.1rem + 1.7vw, 2.375rem);
+  line-height: 1.2;
+  max-width: 22ch;
+}
+.hero__linha { margin-top: 1.5rem; font-size: 1.0625rem; max-width: 34rem; }
+.hero__acoes { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 2rem; }
+
+
+/* ==========================================================================
+   9. SEÇÕES E CABEÇALHOS
+   ========================================================================== */
+.secao { padding-block: clamp(3.5rem, 8vw, 7rem); }
+
+.secao__cab { margin-bottom: clamp(2rem, 4.5vw, 3.75rem); }
+.secao__sub { max-width: 40rem; margin-top: 1.5rem; font-size: 1.125rem; }
+
+.secao__cab--preco { display: grid; gap: 1.5rem; }
+@media (min-width: 48rem) {
+  .secao__cab--preco { grid-template-columns: 1fr auto; align-items: end; }
+  .cab-preco { text-align: right; }
+}
+.preco-grande {
+  font-size: clamp(2.5rem, 1.6rem + 3.6vw, 4.5rem);
+  line-height: 1;
+  color: var(--vinho);
+}
+.cab-preco__sub { margin-top: 0.6rem; }
+
+
+/* ==========================================================================
+   10. PRATO DO DIA
+   ========================================================================== */
+/* Destaque do dia (a partir do tablet; no celular as abas já abrem no dia atual) */
+.pdg-hoje {
+  display: grid; gap: 2rem;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+  padding-bottom: clamp(3rem, 6vw, 5rem);
+  border-bottom: 1px solid var(--verde);
+}
+@media (max-width: 47.99rem) { .pdg-hoje { display: none; } }
+@media (min-width: 48rem) {
+  .pdg-hoje { grid-template-columns: 7fr 6fr; gap: 3.5rem; align-items: center; }
+}
+.pdg-hoje__topo { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1rem; }
+.selo-hoje {
+  flex: none; width: 5rem; aspect-ratio: 1;
+  display: grid; place-items: center;
+  border: 1.5px solid var(--vinho); border-radius: 50%;
+  font-family: var(--f-cursiva); color: var(--vinho); font-size: 1.75rem; line-height: 1;
+}
+.pdg-hoje .pdg-dia__nome { font-size: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem); }
+.pdg-hoje__preco { margin-top: 1.25rem; font-size: 2rem; line-height: 1; color: var(--vinho); }
+
+/* Sábado e domingo */
+.pdg-fimsemana {
+  margin-bottom: clamp(3rem, 6vw, 4.5rem);
+  padding: clamp(1.75rem, 4vw, 3rem) var(--gutter);
+  border: 1.5px solid var(--verde); border-radius: var(--r-caixa);
+  text-align: center;
+}
+.pdg-fimsemana p { max-width: 34rem; margin: 0 auto 1.5rem; font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.625rem); line-height: 1.3; }
+
+/* Abas (só no celular) */
+.pdg-tabs { display: none; }
+@media (max-width: 47.99rem) {
+  .pdg-tabs {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    margin-bottom: 1.75rem; border-bottom: 1px solid var(--verde);
+  }
+}
+.pdg-tab {
+  display: grid; align-content: center; justify-items: center;
+  min-height: 3.5rem; margin-bottom: -1px; padding-bottom: 0.25rem;
+  font-size: 1.1875rem; line-height: 1.1;
+  border-bottom: 2px solid transparent;
+}
+.pdg-tab[aria-selected="true"] { border-bottom-color: var(--vinho); }
+.pdg-tab__hoje { font-family: var(--f-cursiva); color: var(--vinho); font-size: 1.05rem; line-height: 1; }
+
+/* Os cinco dias */
+.pdg-semana { display: grid; gap: clamp(3rem, 6vw, 5rem); }
+.pdg-dia { display: grid; gap: 1.5rem; align-items: center; }
+@media (max-width: 47.99rem) { .pdg-dia:not(.is-ativo) { display: none; } }
+@media (min-width: 48rem) {
+  .pdg-dia { grid-template-columns: 5fr 6fr; gap: 3.5rem; }
+  .pdg-dia--inv { grid-template-columns: 6fr 5fr; }
+  .pdg-dia--inv .foto { order: 2; }
+}
+.pdg-dia.is-hoje .pdg-dia__texto {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1.5px solid var(--verde); border-radius: var(--r-caixa);
+}
+
+.pdg-dia__dia {
+  font-family: var(--f-cursiva); color: var(--vinho);
+  font-size: clamp(2.5rem, 1.7rem + 3vw, 3.75rem); line-height: 1;
+}
+.marca-hoje { margin-left: 0.6rem; font-size: 0.5em; }
+.marca-hoje::before { content: "· "; }
+.pdg-dia__nome { margin-top: 0.4rem; font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); line-height: 1.2; }
+.pdg-dia__serve { margin-top: 0.5rem; font-size: 1rem; }
+.pdg-dia__desc { margin-top: 1rem; max-width: 34rem; font-size: 1.125rem; }
+
+/* Sexta: lasanha e as quatro opções de molho */
+.sexta__lista { display: grid; gap: 0.3rem; margin-top: 0.85rem; font-size: 1.125rem; }
+.sexta__lista li { position: relative; padding-left: 1.5rem; }
+.sexta__lista li::before {
+  content: ""; position: absolute; left: 0; top: 0.85em; width: 0.85rem; height: 1px; background: var(--verde);
+}
+.sexta__somente {
+  margin-top: 1.1rem;
+  font-family: var(--f-cursiva); color: var(--vinho); font-size: 1.875rem; line-height: 1.1;
+}
+
+
+/* ==========================================================================
+   11. DA ITÁLIA À ARGENTINA · EMPANADAS
+   ========================================================================== */
+.empanadas__topo { display: grid; gap: 2rem; align-items: center; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+@media (min-width: 48rem) {
+  .empanadas__topo { grid-template-columns: 5fr 6fr; gap: 3.5rem; }
+}
+.empanadas__lead { max-width: 30rem; margin-top: 1.75rem; font-size: 1.25rem; }
+
+.selo-preco {
+  position: relative; width: 7.75rem; aspect-ratio: 1;
+  display: grid; place-content: center; text-align: center;
+  margin-top: 1.75rem;
+  border: 1.5px solid var(--verde); border-radius: 50%;
+}
+.selo-preco::before {
+  content: ""; position: absolute; inset: 0.4rem;
+  border: 1px solid var(--verde); border-radius: 50%;
+}
+.selo-preco__valor { font-size: 2rem; line-height: 1; color: var(--vinho); }
+.selo-preco__rot { margin-top: 0.3rem; font-size: 0.875rem; line-height: 1.1; }
+
+.empanadas__lista { display: grid; gap: 0 3.5rem; }
+@media (min-width: 48rem) {
+  .empanadas__lista {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(var(--linhas, 4), auto);
+    grid-auto-flow: column;
+  }
+}
+.empanada { padding-block: 1.1rem; border-top: 1px solid var(--verde); }
+.empanada__nome { font-size: clamp(1.375rem, 1.15rem + 0.9vw, 1.75rem); line-height: 1.2; }
+.empanada__desc { margin-top: 0.3rem; font-size: 1rem; }
+
+
+/* ==========================================================================
+   12. PRATO DESTAQUE
+   ========================================================================== */
+.prato-mes {
+  display: grid; gap: 1rem 2rem; align-items: center;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border: 1.5px solid var(--verde); border-radius: var(--r-caixa);
+}
+@media (min-width: 48rem) { .prato-mes { grid-template-columns: 1fr auto; } }
+.prato-mes__rot { font-family: var(--f-cursiva); color: var(--vinho); font-size: 1.875rem; line-height: 1.1; }
+.prato-mes__nome { margin-top: 0.25rem; font-size: clamp(1.5rem, 1.2rem + 1.3vw, 2.125rem); }
+.prato-mes__desc { margin-top: 0.5rem; }
+.preco-destaque { font-size: clamp(2rem, 1.5rem + 1.8vw, 2.75rem); line-height: 1; color: var(--vinho); }
+
+.prato-assinatura { display: grid; gap: 2rem; align-items: center; }
+@media (min-width: 48rem) { .prato-assinatura { grid-template-columns: 6fr 5fr; gap: 4rem; } }
+.prato-assinatura__nome { margin-top: 1.75rem; font-size: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem); line-height: 1.15; }
+.prato-assinatura__desc { margin-top: 1rem; max-width: 34rem; font-size: 1.1875rem; }
+.prato-assinatura .preco-destaque { margin-top: 1.5rem; }
+
+
+/* ==========================================================================
+   13. MONTE SUA MASSA
+   ========================================================================== */
+.monte { display: grid; gap: 2.5rem; align-items: start; }
+@media (min-width: 64rem) {
+  .monte { grid-template-columns: minmax(0, 1fr) 21rem; gap: 4rem; }
+}
+.monte__passos { display: grid; gap: clamp(2.5rem, 5vw, 3.75rem); }
+
+.passo__cab { display: flex; align-items: center; gap: 0.9rem; margin-bottom: 1.25rem; }
+.passo__num {
+  flex: none; width: 2.25rem; height: 2.25rem;
+  display: grid; place-items: center;
+  border: 1px solid var(--verde); border-radius: 50%;
+  font-size: 1.125rem; line-height: 1;
+}
+.passo__sub {
+  font-family: var(--f-cursiva); color: var(--vinho);
+  font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.375rem); line-height: 1.1;
+}
+
+.opcoes { display: grid; gap: 0.75rem; }
+@media (min-width: 40rem) { .opcoes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.opcoes-grupo + .opcoes-grupo { margin-top: 1.75rem; }
+.opcoes-grupo__preco {
+  display: flex; align-items: center; gap: 1rem; margin-bottom: 0.85rem;
+  font-size: 1.25rem; color: var(--vinho);
+}
+.opcoes-grupo__preco::after { content: ""; flex: 1; border-top: 1px solid var(--verde); }
+
+/* Opção: input real escondido + caixa estilizada (radio/checkbox acessíveis por teclado) */
+.opcao { position: relative; display: block; cursor: pointer; }
+.opcao__input {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.opcao__caixa {
+  display: flex; align-items: center; gap: 0.85rem;
+  height: 100%; min-height: 3.5rem; padding: 0.7rem 1rem;
+  border: 1px solid var(--verde); border-radius: var(--r-caixa);
+  transition: border-color 0.2s;
+}
+.opcao__marca {
+  flex: none; width: 1.4rem; height: 1.4rem;
+  display: grid; place-items: center;
+  border: 1.5px solid var(--verde); border-radius: 50%;
+  background: transparent;
+}
+.opcao--checkbox .opcao__marca { border-radius: 0.35rem; }
+.opcao__marca svg {
+  display: none; width: 1rem; height: 1rem;
+  fill: none; stroke: var(--creme); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+}
+.opcao__icone { flex: none; width: 4.25rem; height: 2.75rem; display: grid; place-items: center; }
+.opcao__icone img { max-width: 100%; max-height: 100%; width: auto; height: auto; }
+.opcao__texto { display: grid; min-width: 0; line-height: 1.25; }
+.opcao__nome { font-size: 1.1875rem; }
+.opcao__obs { font-size: 1rem; }
+.opcao__preco { margin-left: auto; padding-left: 0.5rem; white-space: nowrap; font-size: 1.125rem; }
+
+@media (hover: hover) {
+  .opcao:hover .opcao__caixa { border-width: 1.5px; padding: calc(0.7rem - 0.5px) calc(1rem - 0.5px); }
+}
+/* Selecionado: contorno verde de 1,5px + marcador preenchido */
+.opcao__input:checked + .opcao__caixa {
+  border-width: 1.5px; padding: calc(0.7rem - 0.5px) calc(1rem - 0.5px);
+}
+.opcao__input:checked + .opcao__caixa .opcao__marca { background: var(--verde); }
+.opcao__input:checked + .opcao__caixa .opcao__marca svg { display: block; }
+.opcao__input:focus-visible + .opcao__caixa { outline: 2px solid var(--verde); outline-offset: 3px; }
+
+/* Resumo: lateral no desktop */
+.monte-resumo {
+  display: flex; flex-direction: column; gap: 1rem;
+  padding: 1.75rem;
+  border: 1.5px solid var(--verde); border-radius: var(--r-caixa);
+  background: var(--creme);
+}
+@media (min-width: 64rem) {
+  .monte-resumo { position: sticky; top: calc(var(--header-h) + 1.5rem); }
+}
+.resumo__titulo { font-family: var(--f-cursiva); color: var(--vinho); font-size: 2.25rem; line-height: 1; }
+.resumo__combo { font-size: 1.25rem; line-height: 1.35; }
+.resumo__linhas { display: grid; gap: 0.4rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--verde); font-size: 1rem; }
+.resumo__linhas:empty { display: none; }
+.resumo__linhas li { display: flex; justify-content: space-between; gap: 1rem; }
+.resumo__linha-preco { white-space: nowrap; }
+.resumo__total { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--verde); }
+.resumo__total-valor { font-size: 2.5rem; line-height: 1; color: var(--vinho); }
+.resumo__acoes { display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem; margin-top: 1rem; }
+.resumo__acoes .link-btn { align-self: center; }
+.resumo__aviso { font-size: 1rem; color: var(--vinho); }
+.resumo__rodape { display: block; }
+
+/* Resumo: barra inferior no mobile/tablet, só enquanto os passos estão na tela */
+@media (max-width: 63.99rem) {
+  .secao--monte { padding-bottom: 9rem; }
+  .monte-resumo {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "combo combo limpar" "total enviar enviar";
+    align-items: center; gap: 0.25rem 1rem;
+    padding: 0.65rem var(--gutter) calc(0.65rem + env(safe-area-inset-bottom, 0px));
+    border: 0; border-top: 1px solid var(--verde); border-radius: 0;
+    transform: translateY(105%); visibility: hidden;
+    transition: transform 0.35s var(--ease), visibility 0s linear 0.35s;
+  }
+  .monte-resumo.is-visivel { transform: none; visibility: visible; transition-delay: 0s; }
+  .resumo__titulo, .resumo__linhas { display: none; }
+  .resumo__corpo { grid-area: combo; min-width: 0; }
+  .resumo__combo {
+    font-size: 1rem; line-height: 1.3;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .resumo__rodape, .resumo__acoes { display: contents; }
+  .resumo__total { grid-area: total; padding: 0; border: 0; flex-direction: column; align-items: flex-start; gap: 0; }
+  .resumo__total-rot { font-size: 0.8125rem; line-height: 1; }
+  .resumo__total-valor { font-size: 1.75rem; }
+  #btn-enviar { grid-area: enviar; padding-inline: 1rem; line-height: 1.15; }
+  #btn-limpar { grid-area: limpar; min-height: 2rem; justify-self: end; font-size: 0.9375rem; }
+  .resumo__aviso { grid-column: 1 / -1; font-size: 0.9375rem; }
+}
+
+
+/* ==========================================================================
+   14. CARDÁPIO COMPLETO
+   ========================================================================== */
+.secao--cardapio { padding-bottom: 0; }
+.cardapio__titulo {
+  margin-bottom: 2.25rem; text-align: center;
+  font-size: clamp(2.5rem, 1.6rem + 4vw, 4.5rem); line-height: 1;
+}
+
+/* Categorias fixas logo abaixo do header, com scroll-spy */
+.chips {
+  position: sticky; top: var(--header-h); z-index: 40;
+  background: var(--creme);
+  border-block: 1px solid var(--verde);
+}
+.chips__lista {
+  position: relative;
+  max-width: none;
+  display: flex; justify-content: safe center; gap: 0.15rem;
+  overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain;
+}
+.chips__lista::-webkit-scrollbar { display: none; }
+.chips li { flex: none; }
+.chips a {
+  display: flex; align-items: center;
+  min-height: var(--chips-h); padding: 0 0.95rem;
+  white-space: nowrap; text-decoration: none; font-size: 1.0625rem;
+  border-bottom: 2px solid transparent;
+}
+.chips a[aria-current="true"] { border-bottom-color: var(--vinho); }
+@media (min-width: 64rem) {
+  .chips a { padding: 0 0.7rem; font-size: 1rem; }
+}
+@media (hover: hover) {
+  .chips a:hover { border-bottom-color: var(--verde); }
+  .chips a[aria-current="true"]:hover { border-bottom-color: var(--vinho); }
+}
+
+.cat {
+  padding-block: clamp(2.5rem, 5vw, 4.25rem);
+  border-bottom: 1px solid var(--verde);
+  scroll-margin-top: var(--chips-h);
+}
+.cat:last-child { border-bottom: 0; }
+.cat__grade { display: grid; gap: 1.75rem; }
+@media (min-width: 64rem) {
+  .cat__grade { grid-template-columns: 18rem minmax(0, 1fr); gap: 4.5rem; }
+}
+.cat .titulo-assinatura { --ta-tam: clamp(1.875rem, 1.3rem + 2.2vw, 2.875rem); }
+.cat .titulo-assinatura--duplo { --ta-tam: min(2.1rem, 5.4vw); }
+/* "Prato do dia": a cursiva "dia" fica mais à direita, para não cobrir o "do" */
+#prato-dia-titulo, #cat-prato-dia .titulo-assinatura { --ta-recuo: 1.75em; }
+.cat .titulo-simples { font-size: clamp(1.875rem, 1.3rem + 2.2vw, 2.875rem); }
+
+.cat__preco { margin-top: 1.1rem; font-size: 2.25rem; line-height: 1; color: var(--vinho); }
+.cat__preco-rot { font-size: 1rem; color: var(--verde); }
+.cat__desc { margin-top: 0.9rem; max-width: 24rem; }
+.cat__foto { margin-top: 1.5rem; }
+.cat__foto .foto__nome { font-size: 1.75rem; }
+.cat__astina { font-family: var(--f-cursiva); color: var(--vinho); font-size: 1.875rem; line-height: 1.1; }
+.cat__texto { max-width: 34rem; margin-bottom: 1.5rem; }
+.cat__nota { margin-top: 2rem; max-width: 34rem; }
+
+.itens { display: grid; gap: 1.6rem; }
+
+.item__rotulo {
+  display: block; margin-bottom: 0.1rem;
+  font-family: var(--f-cursiva); color: var(--vinho); font-size: 1.625rem; line-height: 1.05;
+}
+.item__linha { display: flex; align-items: baseline; gap: 0.75rem; }
+.item__nome { min-width: 0; font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem); line-height: 1.25; }
+.item__leader { display: none; }
+.item__preco { flex: none; margin-left: auto; text-align: right; white-space: nowrap; font-size: 1.25rem; }
+.item__preco--duplo { display: grid; gap: 0.1rem; }
+.item__unid { font-size: 0.875rem; }
+.item__desc { max-width: 40rem; margin-top: 0.3rem; font-size: 1rem; }
+.item__obs { max-width: 40rem; margin-top: 0.2rem; font-size: 0.9375rem; }
+.item__obs--mes { font-size: 1.125rem; }
+.item__serve { margin-top: 0.2rem; font-size: 1.125rem; color: var(--vinho); }
+
+@media (min-width: 48rem) {
+  .item__leader {
+    display: block; flex: 1 1 1rem; min-width: 1rem;
+    border-bottom: 1px dotted var(--verde);
+    transform: translateY(-0.3em);
+  }
+  .item__preco { margin-left: 0; }
+}
+
+.recheios { margin-top: 1rem; font-size: 1.25rem; line-height: 1.7; }
+.recheios li { display: inline; }
+.recheios li:not(:last-child)::after {
+  content: "|"; content: "|" / "";
+  margin-inline: 0.7rem;
+}
+
+.subgrupo { margin-top: 2.25rem; }
+.subgrupo__titulo {
+  margin-bottom: 1.25rem; padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--verde);
+  font-family: var(--f-cursiva); color: var(--vinho); font-size: 1.875rem; line-height: 1.1;
+}
+
+
+/* ==========================================================================
+   15. NOSSA CASA
+   ========================================================================== */
+.casa__topo { display: grid; gap: 2.25rem; align-items: center; margin-bottom: clamp(3rem, 6vw, 5rem); }
+@media (min-width: 48rem) { .casa__topo { grid-template-columns: 6fr 5fr; gap: 4rem; } }
+.casa__lead { max-width: 30rem; margin-top: 1.5rem; font-size: 1.25rem; }
+.casa__lead + .casa__lead { margin-top: 1rem; }
+
+.pilares { display: grid; gap: 2.5rem; margin-bottom: clamp(3.5rem, 7vw, 5.5rem); }
+@media (min-width: 48rem) { .pilares { grid-template-columns: repeat(3, 1fr); gap: 3rem; } }
+.pilar { padding-top: 2rem; border-top: 1px solid var(--verde); }
+.pilar__icone { height: 5.25rem; width: auto; margin-bottom: 1.25rem; }
+.pilar__titulo { margin-bottom: 0.5rem; font-size: 1.5rem; }
+
+.pet { display: grid; gap: 2rem; align-items: center; margin-bottom: clamp(3.5rem, 7vw, 5.5rem); }
+@media (min-width: 48rem) { .pet { grid-template-columns: 5fr 6fr; gap: 4rem; } }
+.pet__lead { max-width: 26rem; margin-top: 1.5rem; font-size: 1.25rem; }
+
+.nome-significado {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 1.5rem 4rem;
+  padding: clamp(2.5rem, 5vw, 3.5rem) var(--gutter);
+  border-block: 1px solid var(--verde);
+  text-align: center;
+}
+.nome-significado__par { display: grid; }
+.nome-significado__nome { font-size: clamp(2.25rem, 1.6rem + 2.8vw, 3.5rem); line-height: 1.05; }
+.nome-significado__trad { font-family: var(--f-cursiva); color: var(--vinho); font-size: clamp(2rem, 1.5rem + 2.2vw, 3rem); line-height: 1.1; }
+.nome-significado__texto { flex-basis: 100%; font-size: 1.25rem; }
+
+
+/* ==========================================================================
+   16. RECADOS DA CASA (bilhete)
+   ========================================================================== */
+.secao--recados { padding-top: 0; }
+.bilhete {
+  position: relative;
+  max-width: 46rem; margin-inline: auto;
+  padding: clamp(1.75rem, 4vw, 3rem);
+  border: 1px solid var(--verde);
+}
+.bilhete::before {
+  content: ""; position: absolute; inset: 0.45rem;
+  border: 1px solid var(--verde); pointer-events: none;
+}
+.bilhete__titulo { margin-bottom: 0.75rem; font-family: var(--f-cursiva); color: var(--vinho); font-size: 2.5rem; line-height: 1.1; }
+.bilhete__lista li { padding-block: 0.85rem; border-top: 1px dotted var(--verde); font-size: 1.125rem; }
+
+
+/* ==========================================================================
+   17. RODAPÉ / CONTATO
+   ========================================================================== */
+.rodape__padrao {
+  padding-block: clamp(3rem, 8vw, 6.5rem);
+  background: url("../assets/padrao-fundo-tile.png") repeat center top / 180px auto;
+  border-top: 1px solid var(--verde);
+}
+.rodape__bloco {
+  width: min(100% - 2 * var(--gutter), 44rem); margin-inline: auto;
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1.25rem, 4vw, 3rem);
+  background: var(--creme);
+  border: 1px solid var(--verde); border-radius: var(--r-foto);
+  text-align: center;
+}
+.rodape__logo { width: min(19rem, 82%); height: auto; margin: 0 auto 2rem; }
+
+.contatos { display: grid; gap: 1.1rem; justify-items: center; }
+.contatos li { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem 0.75rem; font-size: 1.1875rem; }
+.contatos a:not(.btn) { text-decoration: underline; }
+
+.mapa {
+  display: grid; place-items: center; margin-top: 2rem;
+  aspect-ratio: 16 / 10; overflow: hidden;
+  border: 1px solid var(--verde); border-radius: var(--r-caixa);
+  padding: 1rem;
+}
+.mapa iframe { width: 100%; height: 100%; border: 0; }
+
+.rodape__linha {
+  display: grid; justify-items: center; gap: 0.3rem;
+  padding: 1.5rem var(--gutter);
+  border-top: 1px solid var(--verde);
+  text-align: center; font-size: 0.9375rem;
+}
+
+
+/* ==========================================================================
+   18. ANIMAÇÕES (fade-in + leve subida ao rolar; ≤ 400ms)
+   ========================================================================== */
+.js .reveal {
+  opacity: 0; transform: translateY(12px);
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+}
+.js .reveal.is-in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  /* transition/animation: none (e não duration ínfima): com duração ínfima o navegador ainda "transiciona" e o getComputedStyle devolve valores atrasados */
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  .js .reveal { opacity: 1; transform: none; }
+}
+
+
+/* ==========================================================================
+   19. DIÁLOGO "Mostrar ao atendente" (tela cheia)
+   ========================================================================== */
+.dialogo {
+  width: 100%; max-width: none; height: 100%; max-height: none;
+  margin: 0; padding: 0; border: 0;
+  background: var(--creme); color: var(--verde);
+}
+.dialogo::backdrop { background: var(--creme); }
+.dialogo__corpo {
+  min-height: 100%; display: grid; align-content: center; justify-items: center; gap: 1.75rem;
+  padding: 2rem var(--gutter); text-align: center;
+}
+.dialogo__titulo { font-family: var(--f-cursiva); color: var(--vinho); font-size: clamp(3rem, 2rem + 5vw, 5rem); line-height: 1; }
+.dialogo__combo { max-width: 28rem; font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem); line-height: 1.25; }
+.dialogo__linhas { display: grid; gap: 0.5rem; width: min(100%, 26rem); font-size: 1.25rem; }
+.dialogo__linhas li { display: flex; justify-content: space-between; gap: 1rem; padding-bottom: 0.4rem; border-bottom: 1px dotted var(--verde); }
+.dialogo__total { font-size: 1.5rem; }
+.dialogo__total strong { font-size: 3rem; color: var(--vinho); }
+
+/* Filhos de grid nunca forçam a largura da página (título/cursiva longos quebram em vez de vazar) */
+.hero__grade > *, .empanadas__topo > *, .prato-assinatura > *, .casa__topo > *, .pet > *, .pdg-dia > *, .pdg-hoje > *, .cat__grade > *, .monte > * { min-width: 0; }
+
+
+/* ==========================================================================
+   20. ALMA — detalhes que fazem o site parecer feito em família
+   REGRA: só o "Bem-vindo!" do hero é animado (escrita à mão). Todas as outras
+   cursivas vermelhas ficam ESTÁTICAS, como no cardápio impresso: no máximo
+   entram com o mesmo fade do bloco a que pertencem (ver .reveal).
+   Tudo é desligado com prefers-reduced-motion. Só creme, verde e vinho.
+   ========================================================================== */
+@keyframes hero-aparece { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes hero-pulso { 0% { opacity: 0; transform: scale(0); } 60% { opacity: 1; transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes flutuar { from { transform: translateY(0) rotate(var(--rot, 0deg)); } to { transform: translateY(-6px) rotate(var(--rot, 0deg)); } }
+
+/* --- 20.1 Hero: a caneta escreve "Bem-vindo!" e o resto chega em seguida ---
+   html.hero-tocando → sequência completa (1x por sessão; definido no <head>)
+   html.hero-pronto  → tudo já visível (voltou na mesma sessão ou movimento reduzido) */
+.hero { --hero-frase: 5s; --hero-botoes: 5.45s; --hero-coracao: 6s; --faixa-h: 8rem; position: relative; }
+@media (min-width: 48rem) { .hero { --faixa-h: 10.5rem; } }
+.hero__grade { position: relative; z-index: 1; }
+
+/* moldura do "Bem-vindo!": no celular ocupa 88% da largura (máx. 620px) */
+.bemvindo { position: relative; display: block; width: min(620px, 88%); max-width: 100%; }
+@media (min-width: 48rem) { .bemvindo { width: min(620px, calc(100% - 28px)); } }
+.bem-vindo { display: block; width: 100%; height: auto; overflow: visible; }
+.bemvindo__coracao { position: absolute; left: 100%; top: 26%; width: 14px; height: auto; margin-left: 6px; }
+
+/* ===== animação de escrita ===== */
+.bem-vindo .letra{
+  fill-opacity:0;
+  stroke-opacity:0;
+  stroke-dasharray:1 1;
+  stroke-dashoffset:1;
+  animation:escrever var(--dur) cubic-bezier(.45,.05,.35,1) var(--delay) forwards,
+            tinta .5s ease-out calc(var(--delay) + var(--dur) * .7) forwards;
+}
+@keyframes escrever{from{stroke-opacity:1;stroke-dashoffset:1}to{stroke-opacity:1;stroke-dashoffset:0}}
+@keyframes tinta{to{fill-opacity:1}}
+/* ordem e ritmo da caneta: B longo, pausas curtas entre palavras */
+.l1{--delay:.3s;--dur:1.3s}   /* B */
+.l2{--delay:1.45s;--dur:.45s} /* e */
+.l3{--delay:1.8s;--dur:.6s}   /* m */
+.l4{--delay:2.55s;--dur:.2s}  /* - */
+.l5{--delay:2.8s;--dur:.45s}  /* v */
+.l6{--delay:3.1s;--dur:.2s}   /* traço do i */
+.l7{--delay:3.25s;--dur:.45s} /* in */
+.l8{--delay:3.6s;--dur:.7s}   /* d */
+.l9{--delay:4.15s;--dur:.45s} /* o */
+.l10{--delay:4.7s;--dur:.3s}  /* ! */
+@media (prefers-reduced-motion:reduce){
+  .bem-vindo .letra{animation:none;fill-opacity:1;stroke-opacity:1;stroke-dashoffset:0}
+}
+/* (fim do bloco copiado do demo-bem-vindo.html) */
+
+/* Já viu nesta sessão: as letras aparecem prontas, sem animação */
+html.hero-pronto .bem-vindo .letra { animation: none; fill-opacity: 1; stroke-opacity: 1; stroke-dashoffset: 0; }
+
+/* depois do "!": frase, linha, foto, botões, e por último o coraçãozinho */
+html.hero-tocando .hero__lead { opacity: 0; animation: hero-aparece 0.6s var(--ease) var(--hero-frase) forwards; }
+html.hero-tocando .hero__linha { opacity: 0; animation: hero-aparece 0.6s var(--ease) calc(var(--hero-frase) + 0.15s) forwards; }
+html.hero-tocando .hero__foto { opacity: 0; animation: hero-aparece 0.8s var(--ease) calc(var(--hero-frase) + 0.25s) forwards; }
+html.hero-tocando .hero__acoes { opacity: 0; animation: hero-aparece 0.6s var(--ease) var(--hero-botoes) forwards; }
+html.hero-tocando .bemvindo__coracao { opacity: 0; animation: hero-pulso 0.5s var(--ease) var(--hero-coracao) forwards; }
+
+/* --- 20.2 Coraçãozinho: assinatura da casa (no máximo 5) --- */
+.coracao { display: inline-block; width: 16px; height: auto; flex: none; }
+.divisor { display: flex; align-items: center; gap: 1.25rem; padding-block: clamp(1.5rem, 3vw, 2.5rem); }
+.divisor__linha { flex: 1; border-top: 1px solid var(--verde); }
+.pdg-hoje__topo .coracao { width: 14px; margin-left: -0.5rem; }
+
+/* --- 20.3 Frase de abertura de cada seção --- */
+.abertura { max-width: 34rem; margin-top: 1rem; font-size: 1.125rem; line-height: 1.5; }
+.cat .abertura { max-width: 24rem; margin-top: 0.9rem; font-size: 1rem; }
+
+/* --- 20.4 Prato do dia mais afetivo --- */
+.pdg-kicker { margin-bottom: 1.25rem; font-size: 1.25rem; }
+.pdg-kicker__cursiva { font-family: var(--f-cursiva); color: var(--vinho); font-size: 1.875rem; line-height: 1; }
+
+/* --- 20.5 Uma mensagem da família (bilhete deixado na mesa) --- */
+.secao--mensagem { padding-top: clamp(3rem, 6vw, 5rem); }
+.carta {
+  position: relative;
+  max-width: 640px; margin-inline: auto;
+  padding: clamp(2.5rem, 6vw, 3.75rem) clamp(1.5rem, 5vw, 3.25rem) clamp(3.5rem, 7vw, 4rem);
+  background: var(--creme);
+  border: 1px solid var(--verde);
+}
+.carta::before {                       /* segunda moldura fina, a 6px, como papel de carta */
+  content: ""; position: absolute; inset: 6px;
+  border: 1px solid var(--verde); pointer-events: none;
+}
+.carta__ornamento { position: absolute; z-index: 2; height: auto; }
+.carta__ornamento--ravioli { top: -1.6rem; left: -0.9rem; width: 4.25rem; }
+.carta__ornamento--taca { right: -0.7rem; bottom: -1.7rem; width: 3.1rem; }
+@media (min-width: 48rem) {
+  .carta__ornamento--ravioli { top: -1.9rem; left: -1.6rem; width: 5rem; }
+  .carta__ornamento--taca { right: -1.3rem; bottom: -2rem; width: 3.6rem; }
+}
+.carta__titulo { margin-bottom: 2rem; text-align: center; }
+.carta__cursiva { display: block; font-family: var(--f-cursiva); color: var(--vinho); font-size: clamp(2rem, 1.4rem + 2.6vw, 3rem); line-height: 1.1; white-space: nowrap; }
+.carta__nome { display: block; margin-top: 0.35rem; font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); line-height: 1.15; }
+.carta__texto { display: grid; gap: 1.15rem; font-size: clamp(1.125rem, 1.05rem + 0.3vw, 1.1875rem); line-height: 1.7; }
+.assinatura { display: flex; align-items: center; justify-content: center; gap: 0.6rem; margin-top: 2.25rem; }
+.assinatura__texto {
+  font-family: var(--f-cursiva); color: var(--vinho);
+  font-size: clamp(2rem, 1.35rem + 2.9vw, 3.25rem); line-height: 1.15;
+  white-space: nowrap; width: fit-content; max-width: 100%;
+}
+/* celular: a assinatura quebra em duas linhas (maior e mais legível) em vez de encolher numa linha só */
+@media (max-width: 40rem) {
+  .assinatura__texto { white-space: normal; text-wrap: balance; text-align: center; font-size: clamp(2rem, 8.4vw, 2.75rem); line-height: 1.1; }
+}
+.assinatura__coracao { width: 16px; height: auto; flex: none; margin-top: 0.4rem; }
+
+/* --- 20.6 Padrão vivo: folhas e coração flutuam de leve; as faixas rolam mais devagar --- */
+.hero__flutua { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.flutua { position: absolute; height: auto; animation: flutuar 7s ease-in-out infinite alternate; }
+.flutua--folha-a { --rot: -20deg; left: 2.5%; top: calc(var(--header-h) + var(--faixa-h) + 1.5rem); width: 20px; animation-duration: 6s; }
+.flutua--folha-b { --rot: 25deg; right: 3%; top: calc(var(--header-h) + var(--faixa-h) + 4.5rem); width: 26px; animation-duration: 8s; animation-delay: -2s; }
+.flutua--folha-c { --rot: 70deg; left: 6%; bottom: 1.4rem; width: 18px; animation-duration: 7s; animation-delay: -4s; }
+.flutua--coracao { right: 9%; bottom: 1.5rem; width: 16px; animation-duration: 6.5s; animation-delay: -1s; }
+.faixa-padrao { background-position-y: var(--par, 0px); }
+
+/* --- 20.7 Fotos com calor --- */
+.js .foto__img { transition: opacity 0.5s var(--ease), transform 0.6s var(--ease); }
+@media (hover: hover) { .foto.tem-foto:hover .foto__img { transform: scale(1.03); } }
+
+/* --- 20.8 Rodapé com despedida --- */
+.rodape__obrigado {
+  margin: 0 auto 0.15rem;
+  font-family: var(--f-cursiva); color: var(--vinho);
+  font-size: clamp(2.25rem, 1.6rem + 2.6vw, 3.25rem); line-height: 1.1; white-space: nowrap;
+  width: fit-content; max-width: 100%;
+}
+.rodape__volte { margin-bottom: 2rem; font-size: 1.1875rem; }
+.rodape__feito { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 1.0625rem; }
+.rodape__feito .coracao { width: 14px; }
+.rodape__marca { font-size: 0.9375rem; }
+
+/* --- 20.9 Microdetalhes --- */
+/* links: linha verde fina que cresce da esquerda para a direita no hover */
+.contatos a:not(.btn), .link-seta, .site-nav__lista a { position: relative; }
+.contatos a:not(.btn)::after, .link-seta::after, .site-nav__lista a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+  background: var(--verde); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.35s var(--ease);
+}
+.contatos a:not(.btn) { text-decoration: underline dotted; text-decoration-thickness: 1px; text-underline-offset: 0.22em; }
+/* área de toque de 44px+ (celular) sem mudar o desenho: padding compensado por margem negativa */
+.contatos a:not(.btn) { padding-block: 0.5rem; margin-block: -0.5rem; }
+.contatos a:not(.btn)::after { bottom: calc(0.5rem - 1px); }
+@media (hover: hover) {
+  .contatos a:not(.btn):hover::after, .link-seta:hover::after, .site-nav__lista a:hover::after { transform: scaleX(1); }
+}
+.contatos a:not(.btn):focus-visible::after, .link-seta:focus-visible::after, .site-nav__lista a:focus-visible::after { transform: scaleX(1); }
+
+/* barra de rolagem fina, verde sobre creme (onde o navegador permitir) */
+html { scrollbar-width: thin; scrollbar-color: var(--verde) var(--creme); }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--creme); }
+::-webkit-scrollbar-thumb { background: var(--verde); border-radius: 10px; border: 2px solid var(--creme); }
+
+/* Filhos de grid novos não forçam a largura da página */
+.carta > *, .abertura { min-width: 0; }
+
+/* --- Movimento reduzido: sem parallax, sem flutuar; o hero já vem pronto (definido no <head>) --- */
+@media (prefers-reduced-motion: reduce) {
+  .flutua { animation: none; }
+}

@@ -1,0 +1,15 @@
+ARQUIVOS DA PASTA assets/
+
+  logo-radici-damore.png      logo oficial
+  padrao-fundo-tile.png       padrão ilustrado da marca (tile)
+  massa-*.png                 ícones das massas do "Monte sua massa"
+  coracao.svg                 o coraçãozinho vinho do padrão (vetorizado a partir do tile; troque pelo seu, se quiser)
+  icone-ravioli/taca/farfalle recortes do padrão usados nos pilares e nos cantos da carta
+  folha-1/2.png               folhas do padrão que flutuam no hero
+  og-image.png, favicon*      imagem de compartilhamento e ícones da aba
+
+"BEM-VINDO!" ESCRITO À MÃO (hero)
+  O desenho original do cardápio já está inline no index.html (copiado sem alterações do demo-bem-vindo.html) e
+  a animação está em css/style.css, seção 20.1, entre "animação de escrita" e "fim do bloco copiado do demo".
+  Só o "Bem-vindo!" é animado: todas as outras cursivas vermelhas ficam estáticas.
+  demo-bem-vindo.html (nesta pasta) é a fonte da animação e serve para testar; não vai para o ar por link no site.
