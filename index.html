@@ -224,11 +224,10 @@
       <div class="contido">
         <header class="secao__cab reveal">
           <h2 class="titulo-assinatura" id="destaque-titulo"><span class="ta-fonde">Prato</span> <span class="ta-astina">destaque</span></h2>
-          <p class="abertura">Os pratos que a gente faz com mais orgulho.</p>
+          <p class="abertura">O prato que a gente escolhe com carinho a cada mês.</p>
         </header>
 
         <article class="prato-mes reveal" id="prato-mes"></article>
-        <article class="prato-assinatura reveal" id="prato-assinatura"></article>
       </div>
     </section>
 
@@ -270,7 +269,7 @@
             <div class="resumo__rodape">
               <p class="resumo__total"><span class="resumo__total-rot">Total</span> <strong class="resumo__total-valor" id="resumo-total">—</strong></p>
               <div class="resumo__acoes">
-                <button class="btn btn--cheio btn--pequeno" type="button" id="btn-enviar" aria-disabled="true">Enviar pedido pelo WhatsApp</button>
+                <button class="btn btn--cheio btn--pequeno" type="button" id="btn-enviar" aria-disabled="true">Adicionar ao pedido</button>
                 <button class="link-btn" type="button" id="btn-limpar">Limpar</button>
               </div>
             </div>
@@ -439,16 +438,8 @@
     </p>
   </footer>
 
-  <!-- Resumo em tela cheia, usado quando a casa não recebe pedido por WhatsApp -->
-  <dialog class="dialogo" id="dialogo-atendente" aria-labelledby="dialogo-titulo">
-    <div class="dialogo__corpo">
-      <h2 class="dialogo__titulo" id="dialogo-titulo">seu pedido</h2>
-      <div id="dialogo-conteudo"></div>
-      <button class="btn btn--contorno" type="button" id="dialogo-fechar">Fechar</button>
-    </div>
-  </dialog>
-
   <script src="js/cardapio-data.js"></script>
+  <script src="js/pedido.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

@@ -31,6 +31,15 @@ Depois de editar o `radici-cardapio.json`, rode `node tools/gerar-cardapio-data.
 
 O **prato do dia** troca sozinho todo dia (segunda a sexta, no horário de São Paulo). O **prato destaque** (prato do mês) é manual.
 
+## Pedido pelo WhatsApp
+
+Todo item do cardápio tem "+ adicionar". O cliente monta o pedido, abre a sacola ("Ver pedido"), informa o nome e envia pelo WhatsApp (`CONFIG.whatsappNumero`). Não há servidor: a mensagem é montada no próprio navegador (`js/pedido.js`) e o pedido fica salvo no aparelho (localStorage).
+
+- Os preços do pedido saem do mesmo campo que o cardápio mostra (`preco`, em número). Nunca escreva um preço em dois lugares.
+- Itens com escolha (recheio, tamanho, sabor...) usam o campo `opcoes` (ver o cabeçalho de `js/cardapio-data.js`).
+- O prato do dia só pode ser pedido no próprio dia; sábado e domingo não têm botão.
+- Itens com preço "consultar" entram como "valor a confirmar" e não somam no total.
+
 ## Identidade visual (não mudar)
 
 - Cores: `#F4E6CD` (creme), `#344817` (verde), `#9E1C19` (vinho). Nenhuma outra.
@@ -43,14 +52,14 @@ O **prato do dia** troca sozinho todo dia (segunda a sexta, no horário de São 
 - Fotos dos pratos e da casa em `fotos/`
 - `[[PREENCHER]]` visíveis no site: link do iFood e horários de funcionamento
 - URL final do site (imagem de compartilhamento e dados do Google, em `index.html`)
-- Confirmar se a casa recebe pedidos pelo WhatsApp (`CONFIG.pedidosPorWhatsapp`)
 
 ## Estrutura
 
 ```
 index.html              página única
 css/style.css           estilos (só as 3 cores da marca)
-js/main.js              lógica (prato do dia, montador, cardápio)
+js/main.js              lógica da página (prato do dia, montador, cardápio)
+js/pedido.js            pedido: botões, sacola, mensagem do WhatsApp
 js/cardapio-data.js     dados do cardápio + CONFIG (gerado do JSON)
 radici-cardapio.json    fonte dos preços e pratos
 assets/                 logo, padrão, ícones, coração, "Bem-vindo!"

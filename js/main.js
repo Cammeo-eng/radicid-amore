@@ -53,13 +53,20 @@
   const slug = (s) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const minuscula = (s) => s.charAt(0).toLowerCase() + s.slice(1);
 
-  // "R$ 31,90" -> 31.9 · "+ R$ 6" -> 6
-  const lerPreco = (s) => {
-    const m = String(s).match(/(\d+(?:[.,]\d+)?)/);
-    return m ? parseFloat(m[1].replace(',', '.')) : NaN;
-  };
   // Mesmo padrão do cardápio: inteiro sem centavos, com centavos sempre duas casas.
   const formatarReais = (n) => 'R$ ' + (Number.isInteger(n) ? String(n) : n.toFixed(2).replace('.', ','));
+
+  // Gancho do pedido: js/pedido.js preenche estes <div> com "+ adicionar" / [ − 1 + ] (um por item do cardápio).
+  const criarPedir = (id) => el('div', { class: 'pedir', 'data-pedir': id });
+  // Acréscimo (ex.: ravioli/tortéi + R$ 5) vem das opções: o valor é escrito uma vez só, nos dados.
+  const acrescimoDe = (grupos) => {
+    for (const g of grupos || []) {
+      if (g.preco === 'substitui') continue;
+      const o = (g.itens || []).find((x) => typeof x.preco === 'number');
+      if (o) return o.preco;
+    }
+    return null;
+  };
 
   const cat = (nome) => CARDAPIO.cardapio.find((c) => c.categoria === nome);
   const CAT_EMPANADAS = 'Da Itália à Argentina: Empanadas Argentinas';
@@ -132,7 +139,7 @@
 
     $$('[data-preco-cat]').forEach((e) => {
       const c = cat(e.dataset.precoCat);
-      if (c) e.textContent = c.preco_unico;
+      if (c) e.textContent = formatarReais(c.preco_unico);
     });
   }
 
@@ -197,7 +204,8 @@
         el('h3', { class: 'pdg-dia__nome' }, item.nome),
         el('p', { class: 'pdg-dia__serve' }, `(${serve})`),
         nosDescricao(item, 'pdg-dia__desc'),
-        el('p', { class: 'pdg-hoje__preco' }, preco)));
+        el('p', { class: 'pdg-hoje__preco' }, preco),
+        criarPedir(item.id)));
   }
 
   function blocoFimDeSemana() {
@@ -221,7 +229,8 @@
           ehHoje ? el('span', { class: 'marca-hoje' }, 'hoje') : null),
         el('h3', { class: 'pdg-dia__nome' }, item.nome),
         el('p', { class: 'pdg-dia__serve' }, `(${serve})`),
-        nosDescricao(item, 'pdg-dia__desc')));
+        nosDescricao(item, 'pdg-dia__desc'),
+        criarPedir(item.id)));
   }
 
   function renderPratoDoDia() {
@@ -252,7 +261,7 @@
       : null;
     raiz.replaceChildren(...[
       kicker,
-      hojeItem ? blocoHoje(hojeItem, c.preco_unico, serve) : blocoFimDeSemana(),
+      hojeItem ? blocoHoje(hojeItem, formatarReais(c.preco_unico), serve) : blocoFimDeSemana(),
       el('h3', { class: 'sr-only' }, 'Prato do dia de segunda a sexta'),
       barra, semana,
     ].filter(Boolean));
@@ -336,7 +345,8 @@
     ul.style.setProperty('--linhas', Math.ceil(c.itens.length / 2));
     ul.replaceChildren(...c.itens.map((it) => el('li', { class: 'empanada reveal' },
       el('h3', { class: 'empanada__nome' }, it.nome),
-      el('p', { class: 'empanada__desc' }, it.descricao))));
+      el('p', { class: 'empanada__desc' }, it.descricao),
+      criarPedir(it.id))));
   }
 
   /* ---------- 6. Prato destaque ---------- */
@@ -346,27 +356,14 @@
     const c = cat(CAT_DESTAQUE);
     if (!c) return;
     const mes = c.itens[0];
-    const assinatura = c.itens.find((i) => i.selo);
 
     $('#prato-mes').replaceChildren(
       el('div', { class: 'prato-mes__texto' },
         el('p', { class: 'prato-mes__rot' }, minuscula(mes.nome)),
         el('h3', { class: 'prato-mes__nome' }, textoPratoDoMes()),
-        el('p', { class: 'prato-mes__desc' }, mes.descricao)),
-      el('p', { class: 'preco-destaque' }, mes.preco));
-
-    if (assinatura) {
-      const [primeira, ...resto] = assinatura.selo.split(' ');
-      $('#prato-assinatura').replaceChildren(
-        criarFoto({ src: 'fotos/ravioli-carne-desfiada.jpg', alt: `${assinatura.nome}, prato assinatura do Radici d'Amore`, nome: minuscula(assinatura.nome), lado: 'esq', ar: '4/3' }),
-        el('div', { class: 'prato-assinatura__texto' },
-          el('h3', { class: 'titulo-assinatura' },
-            el('span', { class: 'ta-fonde' }, primeira), ' ',
-            el('span', { class: 'ta-astina' }, resto.join(' '))),
-          el('p', { class: 'prato-assinatura__nome' }, assinatura.nome),
-          el('p', { class: 'prato-assinatura__desc' }, assinatura.descricao),
-          el('p', { class: 'preco-destaque' }, assinatura.preco)));
-    }
+        el('p', { class: 'prato-mes__desc' }, mes.descricao),
+        criarPedir(mes.id)),
+      el('p', { class: 'preco-destaque' }, formatarReais(mes.preco)));
   }
 
   /* ---------- 7. Monte sua massa ---------- */
@@ -412,11 +409,11 @@
       g.itens.push(opcao({ tipo: 'radio', grupo: 'molho', id: `molho-${i}`, valor: i, nome: m.nome }));
     });
     $('#opcoes-molho').replaceChildren(...grupos.map((g) => el('div', { class: 'opcoes-grupo' },
-      el('p', { class: 'opcoes-grupo__preco' }, g.preco),
+      el('p', { class: 'opcoes-grupo__preco' }, formatarReais(g.preco)),
       el('div', { class: 'opcoes' }, g.itens))));
 
     $('#opcoes-adicional').replaceChildren(...adicionais.map((a, i) => opcao({
-      tipo: 'checkbox', grupo: 'adicional', id: `add-${i}`, valor: i, nome: a.nome, preco: a.preco,
+      tipo: 'checkbox', grupo: 'adicional', id: `add-${i}`, valor: i, nome: a.nome, preco: '+ ' + formatarReais(a.preco),
     })));
 
     const $combo = $('#resumo-combo');
@@ -424,8 +421,6 @@
     const $linhas = $('#resumo-linhas');
     const $aviso = $('#resumo-aviso');
     const $enviar = $('#btn-enviar');
-    const pedidoPorWhatsapp = CONFIG.pedidosPorWhatsapp !== false;
-    $enviar.textContent = pedidoPorWhatsapp ? 'Enviar pedido pelo WhatsApp' : 'Mostrar ao atendente';
 
     // "Molho alfredo" -> "ao molho alfredo" · "À caprese" -> "à caprese"
     const fraseMolho = (nome) => (/^molho /i.test(nome) ? 'ao ' : '') + minuscula(nome);
@@ -434,7 +429,7 @@
       const massa = estado.massa != null ? massas[estado.massa] : null;
       const molho = estado.molho != null ? molhos[estado.molho] : null;
       const adds = [...estado.adds].sort((a, b) => a - b).map((i) => adicionais[i]);
-      const total = (molho ? lerPreco(molho.preco) : 0) + adds.reduce((s, a) => s + lerPreco(a.preco), 0);
+      const total = (molho ? molho.preco : 0) + adds.reduce((s, a) => s + a.preco, 0);
       return { massa, molho, adds, total, pronto: Boolean(massa && molho) };
     }
 
@@ -455,19 +450,10 @@
 
       const linhas = [];
       if (r.massa) linhas.push(['Massa', r.massa.nome, '']);
-      if (r.molho) linhas.push(['Molho', r.molho.nome, r.molho.preco]);
-      r.adds.forEach((a) => linhas.push(['Adicional', a.nome, a.preco]));
+      if (r.molho) linhas.push(['Molho', r.molho.nome, formatarReais(r.molho.preco)]);
+      r.adds.forEach((a) => linhas.push(['Adicional', a.nome, '+ ' + formatarReais(a.preco)]));
       $linhas.replaceChildren(...linhas.map(([, nome, preco]) => el('li', null,
         el('span', null, nome), el('span', { class: 'resumo__linha-preco' }, preco))));
-    }
-
-    function textoPedido(r) {
-      const l = ['Olá, Radici d\'Amore! Gostaria de pedir:', ''];
-      l.push(`- Massa: ${r.massa.nome}`);
-      l.push(`- Molho: ${r.molho.nome} (${r.molho.preco})`);
-      if (r.adds.length) l.push(`- Adicionais: ${r.adds.map((a) => `${a.nome} (${a.preco})`).join(', ')}`);
-      l.push('', `Total: ${formatarReais(r.total)}`);
-      return l.join('\n');
     }
 
     function primeiroFaltante() {
@@ -487,12 +473,14 @@
       atualizar();
     });
 
-    $('#btn-limpar').addEventListener('click', () => {
+    function limparSelecao() {
       estado.massa = null; estado.molho = null; estado.adds.clear();
       $$('#monte-passos input').forEach((i) => { i.checked = false; });
       atualizar();
-    });
+    }
+    $('#btn-limpar').addEventListener('click', limparSelecao);
 
+    // "Adicionar ao pedido": a massa montada entra no pedido geral (js/pedido.js) e o montador zera para o próximo prato
     $enviar.addEventListener('click', () => {
       const r = calcular();
       if (!r.pronto) {
@@ -502,35 +490,11 @@
         if (alvo) { alvo.closest('.passo').scrollIntoView({ behavior: reduzMovimento ? 'auto' : 'smooth', block: 'center' }); alvo.focus({ preventScroll: true }); }
         return;
       }
-      if (pedidoPorWhatsapp) {
-        // [[PREENCHER: confirmar se a casa recebe pedidos pelo WhatsApp]] (CONFIG.pedidosPorWhatsapp)
-        window.open(`https://wa.me/${CONFIG.whatsappNumero}?text=${encodeURIComponent(textoPedido(r))}`, '_blank', 'noopener');
-      } else {
-        abrirDialogo(r);
+      if (window.RadiciPedido) {
+        window.RadiciPedido.adicionarMonte({ massa: r.massa.id, molho: r.molho.id, adicionais: r.adds.map((a) => a.id) });
+        limparSelecao();
       }
     });
-
-    function abrirDialogo(r) {
-      const dlg = $('#dialogo-atendente');
-      $('#dialogo-conteudo').replaceChildren(
-        el('p', { class: 'dialogo__combo' }, frase(r)),
-        el('ul', { class: 'dialogo__linhas' },
-          el('li', null, el('span', null, r.massa.nome)),
-          el('li', null, el('span', null, r.molho.nome), el('span', null, r.molho.preco)),
-          r.adds.map((a) => el('li', null, el('span', null, a.nome), el('span', null, a.preco)))),
-        el('p', { class: 'dialogo__total' }, 'Total ', el('strong', null, formatarReais(r.total))));
-      if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
-    }
-    $('#dialogo-fechar').addEventListener('click', () => $('#dialogo-atendente').close());
-
-    // No mobile o resumo é uma barra fixa que só aparece enquanto os passos estão na tela
-    const resumo = $('#monte-resumo');
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(([e]) => resumo.classList.toggle('is-visivel', e.isIntersecting))
-        .observe($('#monte-passos'));
-    } else {
-      resumo.classList.add('is-visivel');
-    }
 
     atualizar();
   }
@@ -569,13 +533,15 @@
   const abreviarPorcao = (r) => r.replace('Porção pequena', 'Porção peq.').replace('Porção grande', 'Porção grand.');
 
   function precoDoItem(it) {
-    if (it.precos) {
+    // dois tamanhos (polenta, batata): os preços saem das opções "substitui", a mesma fonte do pedido
+    const tamanhos = (it.opcoes || []).find((g) => g.preco === 'substitui');
+    if (tamanhos) {
       return el('span', { class: 'item__preco item__preco--duplo' },
-        Object.entries(it.precos).map(([rotulo, valor]) => el('span', { class: 'preco-linha' },
-          el('span', { class: 'item__unid', 'aria-label': rotulo }, abreviarPorcao(rotulo)), ' ', valor)));
+        tamanhos.itens.map((o) => el('span', { class: 'preco-linha' },
+          el('span', { class: 'item__unid', 'aria-label': o.nome }, abreviarPorcao(o.nome)), ' ', formatarReais(o.preco))));
     }
-    if (it.preco) {
-      return el('span', { class: 'item__preco' }, it.preco,
+    if (it.preco === null || typeof it.preco === 'number') {
+      return el('span', { class: 'item__preco' }, it.preco === null ? 'Consultar' : formatarReais(it.preco),
         it.unidade ? el('span', { class: 'item__unid' }, ` ${it.unidade}`) : null);
     }
     return null;
@@ -588,7 +554,7 @@
       const m = desc.match(/\s*(Serve \d+ pessoas?)\.?\s*$/i);
       if (m) { serve = m[1]; desc = desc.slice(0, m.index).trim(); }
     }
-    const rotulo = o.rotulo || it.rotulo || it.selo || it.dia;
+    const rotulo = o.rotulo || it.rotulo || it.dia;
     return el('li', { class: 'item' },
       rotulo ? el('span', { class: 'item__rotulo' }, minuscula(rotulo)) : null,
       el('div', { class: 'item__linha' },
@@ -597,8 +563,9 @@
         precoDoItem(it)),
       serve ? el('p', { class: 'item__serve' }, serve) : null,
       desc ? el('p', { class: 'item__desc' }, desc) : null,
-      it.obs ? el('p', { class: 'item__obs' }, it.obs) : null,
-      o.extra || null);
+      it.obs ? el('p', { class: 'item__obs' }, o.acrescimo != null ? it.obs.replace('{acrescimo}', formatarReais(o.acrescimo)) : it.obs) : null,
+      o.extra || null,
+      o.pedir || (it.pedivel && it.id) ? criarPedir(o.pedir || it.id) : null);
   }
 
   function tituloDaCategoria(meta) {
@@ -617,7 +584,7 @@
     const itens = c.itens || [];
     switch (c.categoria) {
       case CAT_PRATO_DO_DIA: {
-        const dias = el('ul', { class: 'itens' }, itens.map((it) => itemDoMenu({ nome: it.nome }, { rotulo: it.dia })));
+        const dias = el('ul', { class: 'itens' }, itens.map((it) => itemDoMenu({ nome: it.nome }, { rotulo: it.dia, pedir: it.id })));
         return [dias, el('a', { class: 'link-seta', href: '#prato-do-dia' }, 'Ver o que vai em cada prato', svgUso('i-seta', 'icone icone--seta'))];
       }
       case CAT_MONTE: {
@@ -643,10 +610,11 @@
           el('p', { class: 'cat__astina' }, minuscula(pedido)),
           serve ? el('p', { class: 'item__serve' }, serve.replace(/\.$/, '')) : null,
           el('ul', { class: 'recheios' }, c.recheios.map((r, i) => [i ? ' ' : null, el('li', null, r)])),
+          criarPedir(c.itens[0].id),
         ];
       }
       case CAT_PER_DUE:
-        return el('ul', { class: 'itens' }, itens.map((it) => itemDoMenu(it, { extrairServe: true })));
+        return el('ul', { class: 'itens' }, itens.map((it) => itemDoMenu(it, { extrairServe: true, acrescimo: acrescimoDe(c.opcoes) })));
       case 'Bevande': {
         const soltos = itens.filter((it) => !it.nome.startsWith(PREFIXO_CERVEJA));
         const cervejas = itens.filter((it) => it.nome.startsWith(PREFIXO_CERVEJA));
@@ -675,7 +643,7 @@
       const cab = el('div', { class: 'cat__cab' }, tituloDaCategoria(meta));
       if (ABERTURAS[c.categoria]) cab.append(el('p', { class: 'abertura' }, ABERTURAS[c.categoria]));
       if (c.preco_unico) {
-        cab.append(el('p', { class: 'cat__preco' }, c.preco_unico,
+        cab.append(el('p', { class: 'cat__preco' }, formatarReais(c.preco_unico),
           c.categoria === CAT_EMPANADAS ? el('span', { class: 'cat__preco-rot' }, ' preço único') : null));
       }
       if (c.descricao && c.categoria !== 'Panquecas Radici') cab.append(el('p', { class: 'cat__desc' }, c.descricao));
@@ -873,12 +841,15 @@
     let tRedim;
     window.addEventListener('resize', () => { clearTimeout(tRedim); tRedim = setTimeout(ajustarCursivas, 120); });
 
+    // js/pedido.js preenche os ganchos [data-pedir] com os botões de pedir
+    document.dispatchEvent(new CustomEvent('radici:render'));
+
     // Se a aba ficou aberta de um dia para o outro, o destaque do dia acompanha
     let ultimoDia = diaDaSemana();
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState !== 'visible') return;
       const agora = diaDaSemana();
-      if (agora !== ultimoDia) { ultimoDia = agora; renderPratoDoDia(); iniciarReveal(); }
+      if (agora !== ultimoDia) { ultimoDia = agora; renderPratoDoDia(); iniciarReveal(); document.dispatchEvent(new CustomEvent('radici:render')); }
     });
   }
 

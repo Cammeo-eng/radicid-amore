@@ -34,16 +34,39 @@ else {
 }
 if (!igual(ctx.__C.identidade_visual, json.identidade_visual)) console.log('  (aviso) o bloco identidade_visual difere, mas o site não usa esse bloco.');
 
-/* 2) todos os preços do JSON */
+/* 2) todos os preços do JSON (agora são números; o texto "R$ 31,90" é montado a partir deles) */
+const fmt = (n) => 'R$ ' + (Number.isInteger(n) ? String(n) : n.toFixed(2).replace('.', ','));
 const precos = [];
-const guarda = (v, onde) => { if (typeof v === 'string' && /R\$/.test(v)) precos.push({ v: v.replace(/^\+\s*/, ''), onde }); };
+const guarda = (v, onde) => { if (typeof v === 'number') precos.push({ v: fmt(v), onde }); else if (v !== null && v !== undefined) falha(`preço que não é número em ${onde}: ${JSON.stringify(v)}`); };
+const ids = new Set();
+const CATS_PEDIDO = ['massas', 'entradas', 'empanadas', 'adicionais', 'sobremesas', 'bebidas'];
+const confereId = (obj, onde) => {
+  if (!obj.id) falha('sem id: ' + onde);
+  else if (ids.has(obj.id)) falha('id repetido: ' + obj.id);
+  else if (/[^a-z0-9-]/.test(obj.id)) falha('id com acento ou símbolo: ' + obj.id);
+  ids.add(obj.id);
+};
 json.cardapio.forEach((c) => {
   guarda(c.preco_unico, c.categoria);
-  (c.itens || []).forEach((i) => { guarda(i.preco, `${c.categoria} › ${i.nome}`); Object.values(i.precos || {}).forEach((p) => guarda(p, `${c.categoria} › ${i.nome}`)); });
-  (c.passo_2_molhos || []).forEach((i) => guarda(i.preco, `Monte sua massa › ${i.nome}`));
-  (c.passo_3_adicionais || []).forEach((i) => guarda(i.preco, `Monte sua massa › ${i.nome}`));
+  const grupos = (g, onde) => (g || []).forEach((gr) => (gr.itens || []).forEach((o) => { if ('preco' in o) guarda(o.preco, onde + ' › ' + o.nome); }));
+  grupos(c.opcoes, c.categoria);
+  (c.itens || []).forEach((i) => {
+    const onde = `${c.categoria} › ${i.nome}`;
+    confereId(i, onde);
+    if (!CATS_PEDIDO.includes(i.categoriaPedido)) falha('categoriaPedido inválida em ' + onde);
+    if (typeof i.pedivel !== 'boolean') falha('falta "pedivel" em ' + onde);
+    if ('preco' in i && i.preco !== null) guarda(i.preco, onde);
+    grupos(i.opcoes, onde);
+  });
+  if (c.id) {
+    confereId(c, c.categoria);
+    (c.passo_1_massas || []).forEach((i) => confereId(i, 'massa ' + i.nome));
+    (c.passo_2_molhos || []).forEach((i) => { confereId(i, 'molho ' + i.nome); guarda(i.preco, 'molho ' + i.nome); });
+    (c.passo_3_adicionais || []).forEach((i) => { confereId(i, 'adicional ' + i.nome); guarda(i.preco, 'adicional ' + i.nome); });
+  }
 });
-console.log(`\n2) ${precos.length} preços no JSON, ${new Set(precos.map((p) => p.v)).size} valores distintos`);
+console.log(`
+2) ${precos.length} preços no JSON, ${new Set(precos.map((p) => p.v)).size} valores distintos, ${ids.size} ids únicos`);
 
 /* 3) o que aparece na página */
 if (process.argv.includes('--tela')) {
@@ -82,7 +105,7 @@ if (process.argv.includes('--tela')) {
     json.cardapio.forEach((c) => (c.itens || []).forEach((i) => {
       const nome = (i.nome || '').replace(/^Cerveja lata - /, '');
       nomes++;
-      if (nome && !texto.includes(nome)) falha(`nome que NÃO aparece na tela: "${i.nome}"`);
+      if (nome && !texto.replace(/\s+/g, ' ').toLowerCase().includes(nome.toLowerCase())) falha(`nome que NÃO aparece na tela: "${i.nome}"`);
     }));
     if (!erros) ok(`todos os ${set.size} valores de preço e os ${nomes} nomes do cardápio aparecem na tela, sem nenhum preço a mais`);
   }

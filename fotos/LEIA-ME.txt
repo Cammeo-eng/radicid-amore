@@ -10,7 +10,6 @@ Enquanto a foto não existir, o site mostra um quadro elegante no lugar (placeho
   dia-quinta.jpg                 prato do dia de quinta
   dia-sexta.jpg                  prato do dia de sexta (lasanha)
   empanadas.jpg                  empanadas argentinas
-  ravioli-carne-desfiada.jpg     prato assinatura "Coroado um ano"
   panquecas.jpg                  panquecas Radici (aparece no cardápio)
   nossa-casa.jpg                 ambiente / família
   pet-friendly.jpg               foto do cachorro (bloco "Pet friendly")
