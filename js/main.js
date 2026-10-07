@@ -5,7 +5,7 @@
    Índice
    1. Utilitários            6. Prato destaque
    2. Fotos e placeholders   7. Monte sua massa (montador)
-   3. Configuração/contatos  8. Cardápio completo + scroll-spy
+   3. Configuração/contatos  8. Cardápio completo (em abas)
    4. Prato do dia      9. Header, menu mobile, animações
    5. Empanadas             10. Inicialização
    ============================================================ */
@@ -135,7 +135,6 @@
         allowfullscreen: true,
       }));
     }
-    if (CONFIG.horarios) $('[data-config="horarios"]').textContent = CONFIG.horarios;
 
     $$('[data-preco-cat]').forEach((e) => {
       const c = cat(e.dataset.precoCat);
@@ -144,7 +143,6 @@
   }
 
   /* ---------- 4. Prato do dia ---------- */
-  // [[PREENCHER: confirmar dias e horário de funcionamento]]
   // 0 = domingo … 6 = sábado. Dias que têm prato do dia (o site mostra a semana toda nos outros).
   const DIAS_COM_PRATO_DO_DIA = [1, 2, 3, 4, 5];
   const DIA_SLUG = { 1: 'segunda', 2: 'terca', 3: 'quarta', 4: 'quinta', 5: 'sexta' };
@@ -210,7 +208,6 @@
 
   function blocoFimDeSemana() {
     return el('div', { class: 'pdg-fimsemana reveal' },
-      // [[PREENCHER: confirmar dias e horário de funcionamento]] (a mensagem vale para sábado e domingo)
       el('p', null, 'Hoje a cozinha descansa do prato do dia. Segunda tem mais, e a gente te espera.'),
       el('a', { class: 'btn btn--cheio', href: '#monte-sua-massa' }, 'Monte sua massa'));
   }
@@ -630,15 +627,35 @@
     }
   }
 
+  // Seta de "voltar ao começo" (↺), no mesmo traço do resto dos ícones
+  function iconeReiniciar() {
+    const ns = 'http://www.w3.org/2000/svg';
+    const s = document.createElementNS(ns, 'svg');
+    s.setAttribute('viewBox', '0 0 24 24');
+    s.setAttribute('aria-hidden', 'true');
+    s.setAttribute('class', 'icone icone--seta');
+    ['M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8', 'M3 3v5h5'].forEach((d) => {
+      const p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', d);
+      s.append(p);
+    });
+    return s;
+  }
+
+  /* O cardápio vira abas: só UMA categoria visível por vez. O conteúdo todo continua no HTML
+     (as abas inativas ficam com o atributo hidden). */
   function renderCardapio() {
     const lista = $('#cardapio-lista');
     const chips = $('#chips-lista');
     if (!lista || !chips) return;
-    const secoes = [];
+    const metas = CARDAPIO.cardapio.map((c) => ({
+      c, meta: MENU[c.categoria] || { id: slug(c.categoria), chip: c.categoria, titulo: [c.categoria] },
+    }));
+    const abas = [];
+    chips.setAttribute('role', 'tablist');
 
-    CARDAPIO.cardapio.forEach((c) => {
-      const meta = MENU[c.categoria] || { id: slug(c.categoria), chip: c.categoria, titulo: [c.categoria] };
-      const id = `cat-${meta.id}`;
+    metas.forEach(({ c, meta }, i) => {
+      const painelId = `cardapio-${meta.id}`;
 
       const cab = el('div', { class: 'cat__cab' }, tituloDaCategoria(meta));
       if (ABERTURAS[c.categoria]) cab.append(el('p', { class: 'abertura' }, ABERTURAS[c.categoria]));
@@ -654,57 +671,149 @@
       const corpo = el('div', { class: 'cat__corpo' }, corpoDaCategoria(c, meta));
       if (c.obs) corpo.append(el('p', { class: 'cat__nota' }, c.obs));
 
-      const sec = el('section', { class: 'cat reveal', id, 'aria-label': meta.chip },
+      // no fim de cada categoria: link para a próxima (na última, volta para a primeira)
+      const prox = metas[(i + 1) % metas.length].meta;
+      const ultima = i === metas.length - 1;
+      corpo.append(el('p', { class: 'cat__proxima' },
+        el('a', { class: 'link-seta', href: `#cardapio-${prox.id}` },
+          ultima ? `voltar para ${prox.chip}` : `próxima: ${prox.chip}`,
+          ultima ? iconeReiniciar() : svgUso('i-seta', 'icone icone--seta'))));
+
+      const painel = el('section', { class: 'cat', id: painelId, role: 'tabpanel', 'aria-labelledby': `aba-${meta.id}`, hidden: true },
         el('div', { class: 'cat__grade' }, cab, corpo));
-      secoes.push(sec);
-      chips.append(el('li', null, el('a', { href: `#${id}`, 'data-alvo': id }, meta.chip)));
+      const aba = el('a', {
+        href: `#${painelId}`, id: `aba-${meta.id}`, role: 'tab',
+        'aria-controls': painelId, 'aria-selected': 'false', tabindex: '-1',
+      }, meta.chip);
+      chips.append(el('li', { role: 'presentation' }, aba));
+      abas.push({ id: meta.id, aba, painel });
     });
 
-    lista.replaceChildren(...secoes);
-    ligarScrollSpy(secoes);
+    lista.replaceChildren(...abas.map((a) => a.painel));
+    ligarAbasDoCardapio(abas);
   }
 
-  function ligarScrollSpy(secoes) {
-    const chips = $('#chips-lista');
-    const links = $$('a', chips);
-    let ativo = null;
-    let agendado = false;
+  function ligarAbasDoCardapio(abas) {
+    const barra = $('#chips');
+    const trilho = $('#chips-lista');
+    const lista = $('#cardapio-lista');
+    const n = abas.length;
+    let atual = -1;
+    let interagiu = false;
 
-    function marcar(id) {
-      if (id === ativo) return;
-      ativo = id;
-      links.forEach((a) => {
-        const on = a.dataset.alvo === id;
-        if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
-        if (on) {
-          // scrollTo no próprio carrossel (não interrompe a rolagem suave da página)
-          const alvo = a.offsetLeft - (chips.clientWidth - a.offsetWidth) / 2;
-          chips.scrollTo({ left: Math.max(0, alvo), behavior: reduzMovimento ? 'auto' : 'smooth' });
-        }
+    // "#cardapio-dolce" (ou o antigo "#cat-dolce") -> índice da aba; qualquer outra coisa -> null
+    function indiceDoHash(h) {
+      const m = /^#(?:cardapio|cat)-(.+)$/.exec(h || '');
+      if (!m) return null;
+      let id = m[1];
+      try { id = decodeURIComponent(id); } catch (e) { /* hash malformado: usa como veio */ }
+      const i = abas.findIndex((a) => a.id === id);
+      return i < 0 ? null : i;
+    }
+
+    // rolagem em que o conteúdo da aba fica logo abaixo da barra fixa de categorias
+    function topoDoConteudo() {
+      const header = $('.site-header__inner').offsetHeight;
+      return Math.max(0, Math.round(lista.getBoundingClientRect().top + window.scrollY - header - barra.offsetHeight));
+    }
+    // volta ao topo do cardápio só se o cliente estiver rolado lá embaixo (ou se vier de um link de fora)
+    function rolarParaOTopo(forcar, instantaneo) {
+      const alvo = topoDoConteudo();
+      if (forcar || window.scrollY > alvo + 8) {
+        window.scrollTo({ top: alvo, behavior: (reduzMovimento || instantaneo) ? 'instant' : 'smooth' });
+      }
+    }
+    // a aba escolhida desliza para o centro da barra (rolagem horizontal do celular)
+    function centralizar(a) {
+      const alvo = a.offsetLeft - (trilho.clientWidth - a.offsetWidth) / 2;
+      trilho.scrollTo({ left: Math.max(0, alvo), behavior: reduzMovimento ? 'instant' : 'smooth' });
+    }
+
+    function selecionar(i, o = {}) {
+      const { rolar = true, forcar = false, url = true, foco = false, animar = true, instantaneo = false } = o;
+      const mudou = i !== atual;
+      abas.forEach((a, k) => {
+        const on = k === i;
+        a.painel.hidden = !on;
+        a.aba.setAttribute('aria-selected', String(on));
+        a.aba.tabIndex = on ? 0 : -1;
       });
+      atual = i;
+      const { aba, painel } = abas[i];
+      if (mudou) {
+        centralizar(aba);
+        if (animar) { // fade de 200ms (CSS; some com prefers-reduced-motion)
+          painel.classList.remove('is-entrando');
+          void painel.offsetWidth;
+          painel.classList.add('is-entrando');
+        }
+        // cada aba tem o seu endereço: dá para mandar o link de uma categoria
+        if (url) { try { history.replaceState(null, '', `#${painel.id}`); } catch (e) { /* sem histórico */ } }
+        ajustarCursivas(); // os títulos em cursiva da aba recém-aberta ainda não tinham sido medidos
+      }
+      if (foco) aba.focus({ preventScroll: true });
+      if (rolar) rolarParaOTopo(forcar, instantaneo);
     }
 
-    function calcular() {
-      agendado = false;
-      const barra = $('#chips');
-      const topo = barra.getBoundingClientRect().bottom + 24;
-      const lista = $('#cardapio-lista').getBoundingClientRect();
-      if (lista.top > topo + 40 || lista.bottom < topo) { // fora da área do cardápio
-        ativo = null;
-        links.forEach((a) => a.removeAttribute('aria-current'));
-        return;
-      }
-      let id = secoes[0].id;
-      for (const s of secoes) {
-        if (s.getBoundingClientRect().top <= topo) id = s.id; else break;
-      }
-      marcar(id);
-    }
+    lista.addEventListener('animationend', (ev) => ev.target.classList.remove('is-entrando'));
 
-    const pedir = () => { if (!agendado) { agendado = true; requestAnimationFrame(calcular); } };
-    window.addEventListener('scroll', pedir, { passive: true });
-    window.addEventListener('resize', pedir);
-    calcular();
+    // toque nas abas
+    abas.forEach((a, i) => a.aba.addEventListener('click', (ev) => { ev.preventDefault(); selecionar(i); }));
+
+    // teclado: setas, Home e End navegam entre as abas
+    trilho.addEventListener('keydown', (ev) => {
+      let alvo = null;
+      if (ev.key === 'ArrowRight') alvo = (atual + 1) % n;
+      else if (ev.key === 'ArrowLeft') alvo = (atual - 1 + n) % n;
+      else if (ev.key === 'Home') alvo = 0;
+      else if (ev.key === 'End') alvo = n - 1;
+      if (alvo != null) { ev.preventDefault(); selecionar(alvo, { foco: true }); }
+    });
+
+    // links para uma aba: "próxima: Dolce", e qualquer #cardapio-<categoria> da página
+    document.addEventListener('click', (ev) => {
+      const link = ev.target.closest('a[href^="#"]');
+      if (!link || link.getAttribute('role') === 'tab') return;
+      const i = indiceDoHash(link.getAttribute('href'));
+      if (i == null) return;
+      ev.preventDefault();
+      selecionar(i, { forcar: !link.closest('#cardapio') }); // de fora do cardápio: sempre leva até lá
+    });
+    window.addEventListener('hashchange', () => {
+      const i = indiceDoHash(location.hash);
+      if (i != null) selecionar(i, { url: false, forcar: true });
+    });
+
+    // celular: deslizar para os lados troca de categoria (só gesto claramente horizontal)
+    let x0 = null, y0 = null;
+    lista.addEventListener('touchstart', (ev) => {
+      if (ev.touches.length !== 1) { x0 = null; return; }
+      x0 = ev.touches[0].clientX; y0 = ev.touches[0].clientY;
+    }, { passive: true });
+    lista.addEventListener('touchcancel', () => { x0 = null; }, { passive: true });
+    lista.addEventListener('touchend', (ev) => {
+      if (x0 == null) return;
+      const dx = ev.changedTouches[0].clientX - x0;
+      const dy = ev.changedTouches[0].clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8) {
+        const prox = atual + (dx < 0 ? 1 : -1);
+        if (prox >= 0 && prox < n) selecionar(prox);
+      }
+    }, { passive: true });
+
+    // abertura: Antipasto, ou a categoria do endereço (#cardapio-dolce)
+    ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach((t) => window.addEventListener(t, () => { interagiu = true; }, { passive: true, once: true }));
+    const inicial = indiceDoHash(location.hash);
+    selecionar(inicial == null ? 0 : inicial, { rolar: false, url: false, animar: false });
+    if (inicial != null) {
+      // veio de um link direto para uma categoria: leva até ela e refaz o ajuste enquanto a página termina de
+      // assentar (fontes, imagens, rolagem automática do navegador), parando assim que o cliente mexer
+      const ajustar = () => { if (!interagiu) rolarParaOTopo(true, true); };
+      requestAnimationFrame(ajustar);
+      window.addEventListener('load', () => { ajustar(); setTimeout(ajustar, 300); setTimeout(ajustar, 1000); }, { once: true });
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustar);
+    }
   }
 
   /* ---------- 9. Header, menu mobile, animações ---------- */

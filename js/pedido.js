@@ -11,6 +11,7 @@
    3. Catálogo e preços        8. Botões de pedir (+ adicionar / − 1 +)
    4. Linhas do pedido         9. Janela de opções
    5. Descrição das linhas    10. Barra, aviso e sacola
+   2b. Horário de funcionamento (js/horarios.js): avisos de almoço e envio só com a casa aberta
    ============================================================ */
 (function () {
   'use strict';
@@ -88,6 +89,15 @@
     if (slug(item.dia) === hoje) return { ok: true };
     return { ok: false, quando: minuscula(item.dia) };
   }
+
+  /* ---------- 2b. Horário de funcionamento ----------
+     js/horarios.js diz se estamos abertos e se é hora de almoço. Sem ele, nada é bloqueado nem avisado. */
+  const HORARIOS = window.RadiciHorarios || null;
+  const horarioAgora = () => (HORARIOS ? HORARIOS.estado() : null);
+  // Pratos de almoço = categoria "Massas e pratos" (prato do dia, monte sua massa, prato do mês, panquecas, risotto, piatto per due, PF aconchego, prato kids)
+  const ehPratoDeAlmoco = (categoria) => categoria === 'massas';
+  // "servido no almoço, das 11h às 14h": só aparece fora desse horário (não bloqueia nada)
+  const avisoAlmoco = () => { const h = horarioAgora(); return h && !h.almoco ? h.avisoAlmoco : ''; };
 
   /* ---------- 3. Catálogo e preços ---------- */
   // Ordem das categorias na sacola e na mensagem
@@ -313,6 +323,10 @@
     if (limpa(estado.obsGeral)) m.push('', `\u{1F4DD} _Obs.: ${limpa(estado.obsGeral)}_`);
     m.push('', '_Pagamento no balcão._');
     if (r.aConfirmar) m.push('_Alguns valores serão confirmados pelo Radici._');
+    const h = horarioAgora();
+    if (h && h.antesDoAlmoco && ds.some((x) => ehPratoDeAlmoco(x.d.cat))) {
+      m.push(`_Pedido com prato do almoço: preparar a partir das ${h.inicioDoAlmoco}._`);
+    }
     return m.join('\n');
   }
 
@@ -422,9 +436,13 @@
         el('span', { class: 'stepper__qtd' }, q),
         botaoStepper('mais', `Aumentar ${nome}`, ICO_MAIS)));
     }
+    if (notaAlmoco && ehPratoDeAlmoco(item.categoriaPedido)) wrap.append(el('p', { class: 'pedir__nota' }, notaAlmoco));
   }
 
+  let notaAlmoco = ''; // aviso de almoço de agora (vazio durante o almoço)
   function renderControles() {
+    notaAlmoco = avisoAlmoco();
+    $$('[data-aviso-almoco]').forEach((p) => { p.textContent = notaAlmoco; p.hidden = !notaAlmoco; }); // "Monte sua massa"
     // guarda o foco (quem usa teclado não pode perdê-lo quando o botão é redesenhado)
     const ativo = document.activeElement;
     const wrapAtivo = ativo && ativo.closest ? ativo.closest('[data-pedir]') : null;
@@ -612,15 +630,18 @@
     el('p', null, 'Pedido enviado?'),
     el('button', { class: 'btn btn--contorno btn--pequeno', type: 'button', 'data-acao': 'limpar-sacola' }, 'Limpar sacola'));
   const totalEl = el('strong', { class: 'sacola__total-valor' });
+  const fechadoEl = el('p', { class: 'sacola__fechado', id: 'sacola-fechado', hidden: true });
   const btnEnviar = el('button', { class: 'btn btn--cheio btn--bloco', type: 'button', 'data-acao': 'enviar' }, 'Enviar pedido pelo WhatsApp');
   const limparEl = el('div', { class: 'sacola__limpar' });
   const rodapeEl = el('div', { class: 'painel__rodape' },
     enviadoEl,
     el('p', { class: 'sacola__total' }, 'Total', totalEl),
     el('p', { class: 'sacola__aviso' }, 'Pagamento feito diretamente no balcão. Itens sujeitos à disponibilidade.'),
-    btnEnviar, limparEl);
+    fechadoEl, btnEnviar, limparEl);
 
-  const corpoSacola = el('div', { class: 'painel__corpo' }, retiradasEl, vazioEl, listaEl, camposEl);
+  // selo "aberto agora" no topo da sacola (js/horarios.js o mantém atualizado)
+  const seloEl = HORARIOS ? el('div', { class: 'sacola__selo' }, HORARIOS.selo()) : null;
+  const corpoSacola = el('div', { class: 'painel__corpo' }, seloEl, retiradasEl, vazioEl, listaEl, camposEl);
   dlgSacola.append(el('div', { class: 'painel__caixa' },
     alca,
     el('header', { class: 'painel__cab' },
@@ -710,11 +731,13 @@
     if (!tem) { listaEl.replaceChildren(); return; }
 
     const ds = linhasDescritas();
+    const notaDoAlmoco = avisoAlmoco();
     listaEl.replaceChildren(...CATEGORIAS.map((cat) => {
       const dentro = ds.filter((x) => x.d.cat === cat.id);
       if (!dentro.length) return null;
       return el('section', { class: 'sacola__grupo' },
         el('h3', { class: 'sacola__grupo-titulo' }, cat.rotulo),
+        ehPratoDeAlmoco(cat.id) && notaDoAlmoco ? el('p', { class: 'sacola__nota' }, notaDoAlmoco) : null,
         el('ul', { class: 'sacola__itens' }, dentro.map(({ l, d }) => linhaDom(l, d))));
     }).filter(Boolean));
 
@@ -722,7 +745,19 @@
     totalEl.replaceChildren(
       r.aConfirmar && !r.total ? 'valor a confirmar' : moeda(r.total),
       r.aConfirmar && r.total ? el('span', { class: 'sacola__total-conf' }, '+ valores a confirmar') : null);
+    renderEnvio();
     renderLimpar();
+  }
+
+  // Fora do expediente a sacola monta normalmente, mas o envio fica desativado (o pedido continua salvo)
+  function renderEnvio() {
+    const h = horarioAgora();
+    const fechado = Boolean(h) && !h.aberto;
+    fechadoEl.hidden = !fechado;
+    fechadoEl.textContent = fechado ? h.avisoFechado : '';
+    btnEnviar.setAttribute('aria-disabled', String(fechado));
+    if (fechado) btnEnviar.setAttribute('aria-describedby', 'sacola-fechado');
+    else btnEnviar.removeAttribute('aria-describedby');
   }
 
   function preencherCampos() {
@@ -737,6 +772,7 @@
 
   function abrirSacola() {
     if (!estado.linhas.length) return;
+    if (HORARIOS) HORARIOS.atualizar();
     preencherCampos();
     confirmandoLimpar = false;
     renderSacola();
@@ -757,6 +793,9 @@
 
   function enviar() {
     if (!estado.linhas.length) return;
+    if (HORARIOS) HORARIOS.atualizar();            // confere o relógio na hora do clique (selos e aviso juntos)
+    const h = horarioAgora();
+    if (h && !h.aberto) { renderEnvio(); return; } // fechou enquanto a sacola estava aberta
     if (!estado.nome.trim()) {
       erroNome.textContent = 'Informe seu nome para enviar o pedido.';
       erroNome.hidden = false;
@@ -816,6 +855,9 @@
     aplicar();
     if (retiradasPorDia && !avisouRetiradas) { avisouRetiradas = true; avisar('O prato do dia de outro dia saiu do seu pedido'); }
   });
+
+  // Abriu, fechou ou começou/terminou o almoço com a página aberta: avisos e botão de enviar acompanham
+  if (HORARIOS) HORARIOS.aoMudar(() => { renderControles(); if (dlgSacola.open) renderSacola(); });
 
   // Sobe a barra se já havia pedido salvo (a página foi reaberta)
   renderBarra();

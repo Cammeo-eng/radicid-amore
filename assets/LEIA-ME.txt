@@ -1,12 +1,17 @@
 ARQUIVOS DA PASTA assets/
 
-  logo-radici-damore.png      logo oficial
-  padrao-fundo-tile.png       padrão ilustrado da marca (tile)
+  logo-radici-damore.svg      logotipo oficial, vetorial, fundo transparente (header e rodapé)
+  coracao-linha.svg           símbolo da marca: coração de linha contínua (divisória, assinatura, ícones)
+  coracao.svg                 coraçãozinho cheio do padrão, para usos minúsculos (14 a 16 px)
+  padrao-sutil.svg            padrão ilustrado a 12% de opacidade sobre o creme (fundo de "Recados da casa")
+  padrao-fundo-tile.png       padrão ilustrado em tamanho cheio (faixas, rodapé e quadros sem foto)
   massa-*.png                 ícones das massas do "Monte sua massa"
-  coracao.svg                 o coraçãozinho vinho do padrão (vetorizado a partir do tile; troque pelo seu, se quiser)
   icone-ravioli/taca/farfalle recortes do padrão usados nos pilares e nos cantos da carta
   folha-1/2.png               folhas do padrão que flutuam no hero
-  og-image.png, favicon*      imagem de compartilhamento e ícones da aba
+  og-image.jpg                imagem de compartilhamento (foto da capa + logotipo), gerada por tools/otimizar-fotos.js
+  favicon.svg, favicon-32.png, apple-touch-icon.png   ícones da aba e do app (símbolo da marca sobre o creme)
+
+CORES DA MARCA (as do logotipo): verde #3D4C23 · vinho #931A1A · creme #F4E6CD
 
 "BEM-VINDO!" ESCRITO À MÃO (hero)
   O desenho original do cardápio já está inline no index.html (copiado sem alterações do demo-bem-vindo.html) e

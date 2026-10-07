@@ -40,14 +40,22 @@ const CONFIG = {
   whatsappNumero: "5541984867724",       // só dígitos, com 55 + DDD (recebe os pedidos enviados pela sacola)
   instagramUrl: "https://instagram.com/radicidamore",
 
-  // [[PREENCHER: link iFood]]  (deixe "" enquanto não tiver; o site mostra o marcador)
-  ifoodUrl: "",
+  // Página do Radici no iFood (abre em nova aba no cabeçalho e no rodapé). Sem o rastreador "?fbclid=..." do Facebook.
+  // Se um dia ficar "", o site esconde o botão do rodapé e mostra o marcador [[PREENCHER: link iFood]].
+  ifoodUrl: "https://www.ifood.com.br/delivery/fazenda-rio-grande-pr/radici-damore-eucaliptos/23ac3698-b9a8-4f47-8a84-234a5f3a7844",
 
   // Endereço: aparece no rodapé, vira link para o Google Maps e gera o mapa embutido sozinho.
   endereco: "R. Jequitibá, 105 - Loja 25, Fazenda Rio Grande - PR, 83820-004",
 
-  // [[PREENCHER: horários]]  (ex.: "Ter a dom · 11h30 às 22h") — [[PREENCHER: confirmar dias e horário de funcionamento]]
-  horarios: ""
+  // Horários oficiais (fonte: post da cliente no Instagram). Escritos uma vez só: o rodapé, o selo "aberto agora",
+  // os avisos de almoço e o botão de enviar o pedido leem estes mesmos valores (js/horarios.js).
+  // Formato "H:MM" (24h, fuso America/Sao_Paulo). Para testar: ?dia=terca&hora=12:00 no endereço do site.
+  horarios: {
+    semana: { rotulo: "Segunda - Sexta",    abre: "8:00",  fecha: "15:00" },   // segunda a sexta
+    sabado: { rotulo: "Sábados alternados", abre: "8:30",  fecha: "14:00" },   // só em alguns sábados
+    almoco: { rotulo: "Almoço",             abre: "11:00", fecha: "14:00" },   // pratos de "Massas e pratos"
+    aviso: "Tudo é feito com tempo, cuidado e carinho. Por isso, em dias de grande movimento, nosso atendimento poderá ser encerrado antes do horário previsto."
+  }
 };
 
 /* ===== CARDÁPIO · gerado de radici-cardapio.json (não edite abaixo desta linha) ===== */
@@ -68,8 +76,8 @@ const CARDAPIO = {
   "identidade_visual": {
     "cores": {
       "creme_fundo": "#F4E6CD",
-      "verde_oliva_textos": "#344817",
-      "vermelho_vinho_destaques": "#9E1C19",
+      "verde_oliva_textos": "#3D4C23",
+      "vermelho_vinho_destaques": "#931A1A",
       "verde_medio_ilustracoes": "#5F6B40"
     },
     "fontes_no_arquivo": {

@@ -17,6 +17,9 @@
     8. Hero                       18. Animações
     9. Seções e faixas            19. Diálogo
                                   21. Pedido (botões, barra, sacola)
+                                  22. Horários (rodapé, selo de status)
+                                  23. Marca (fotos, símbolo, textura)
+                                  24. Conte pra gente (convite para avaliar)
    ========================================================================== */
 
 
@@ -52,8 +55,8 @@
   color-scheme: light;
 
   --creme: #F4E6CD;
-  --verde: #344817;
-  --vinho: #9E1C19;
+  --verde: #3D4C23;
+  --vinho: #931A1A;
 
   /* O que vem depois de "Fonde"/"Astina" só segura o layout enquanto a fonte carrega. */
   --f-serif: "Fonde", Georgia, "Times New Roman", serif;
@@ -679,7 +682,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   font-size: clamp(2.5rem, 1.6rem + 4vw, 4.5rem); line-height: 1;
 }
 
-/* Categorias fixas logo abaixo do header, com scroll-spy */
+/* Abas do cardápio: fixas logo abaixo do header (a aba ativa tem o sublinhado vinho) */
 .chips {
   position: sticky; top: var(--header-h); z-index: 40;
   background: var(--creme);
@@ -699,21 +702,28 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   white-space: nowrap; text-decoration: none; font-size: 1.0625rem;
   border-bottom: 2px solid transparent;
 }
-.chips a[aria-current="true"] { border-bottom-color: var(--vinho); }
+.chips a[aria-selected="true"] { border-bottom-color: var(--vinho); }
+.chips a:focus-visible { outline-offset: -5px; }   /* o foco do teclado não fica cortado pela barra */
 @media (min-width: 64rem) {
   .chips a { padding: 0 0.7rem; font-size: 1rem; }
 }
 @media (hover: hover) {
   .chips a:hover { border-bottom-color: var(--verde); }
-  .chips a[aria-current="true"]:hover { border-bottom-color: var(--vinho); }
+  .chips a[aria-selected="true"]:hover { border-bottom-color: var(--vinho); }
 }
 
 .cat {
   padding-block: clamp(2.5rem, 5vw, 4.25rem);
-  border-bottom: 1px solid var(--verde);
   scroll-margin-top: var(--chips-h);
 }
-.cat:last-child { border-bottom: 0; }
+/* só uma categoria aparece por vez: entra com um fade de 200ms (some com prefers-reduced-motion) */
+@keyframes aba-entra { from { opacity: 0; } to { opacity: 1; } }
+.cat.is-entrando { animation: aba-entra 0.2s ease-out; }
+/* link discreto para a próxima categoria, no fim de cada aba */
+/* só a rolagem vertical é do navegador; o deslizar para os lados troca de aba (e não aciona o "voltar" do navegador) */
+.cardapio__lista { touch-action: pan-y pinch-zoom; }
+.cat__proxima { margin-top: 2.25rem; }
+.cat__proxima .link-seta { margin-top: 0; }
 .cat__grade { display: grid; gap: 1.75rem; }
 @media (min-width: 64rem) {
   .cat__grade { grid-template-columns: 18rem minmax(0, 1fr); gap: 4.5rem; }
@@ -721,7 +731,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .cat .titulo-assinatura { --ta-tam: clamp(1.875rem, 1.3rem + 2.2vw, 2.875rem); }
 .cat .titulo-assinatura--duplo { --ta-tam: min(2.1rem, 5.4vw); }
 /* "Prato do dia": a cursiva "dia" fica mais à direita, para não cobrir o "do" */
-#prato-dia-titulo, #cat-prato-dia .titulo-assinatura { --ta-recuo: 1.75em; }
+#prato-dia-titulo, #cardapio-prato-dia .titulo-assinatura { --ta-recuo: 1.75em; }
 .cat .titulo-simples { font-size: clamp(1.875rem, 1.3rem + 2.2vw, 2.875rem); }
 
 .cat__preco { margin-top: 1.1rem; font-size: 2.25rem; line-height: 1; color: var(--vinho); }
@@ -1078,7 +1088,8 @@ html { scrollbar-width: thin; scrollbar-color: var(--verde) var(--creme); }
 @keyframes painel-entra { from { transform: translateX(100%); } to { transform: none; } }
 
 /* --- 21.1 "+ adicionar" e [ − 1 + ] em cada item --- */
-.pedir { display: flex; align-items: center; min-height: calc(2.75rem + 3px); margin-top: 0.75rem; }
+.pedir { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.9rem; min-height: calc(2.75rem + 3px); margin-top: 0.75rem; }
+.pedir__nota { font-size: 0.9375rem; line-height: 1.3; }   /* "servido no almoço, das 11h às 14h" */
 .pedir:empty { display: none; }       /* sábado e domingo: o prato do dia fica sem botão */
 
 .stepper { display: inline-flex; align-items: center; border: 1.5px solid var(--verde); border-radius: 999px; }
@@ -1194,3 +1205,80 @@ textarea.campo { min-height: 4.5rem; resize: vertical; }
 .sacola__limpar { display: flex; justify-content: center; margin-top: 0.25rem; }
 .sacola__confirma { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem 0.75rem; }
 .sacola__confirma p { flex-basis: 100%; text-align: center; }
+
+
+/* ==========================================================================
+   22. HORÁRIOS — bloco do rodapé, selo "aberto agora" e avisos de almoço
+   Só ACRESCENTA (js/horarios.js). Mesmo estilo do post da cliente: dia em Fonde
+   verde, horário embaixo em vinho. Só creme, verde e vinho.
+   ========================================================================== */
+.contatos__horarios { flex-direction: column; gap: 1rem; }
+.horarios { display: grid; justify-items: center; gap: 1.5rem; width: 100%; }
+.horarios__lista { display: grid; gap: 1.25rem; justify-items: center; }
+.horarios__bloco { text-align: center; }
+.horarios__dia { font-size: 1.1875rem; line-height: 1.3; }
+.horarios__hora { color: var(--vinho); font-size: 1.75rem; line-height: 1.25; }
+.horarios__aviso {
+  width: min(100%, 26rem); padding-top: 1.25rem;
+  border-top: 1px solid var(--vinho);
+  font-size: 0.9375rem; line-height: 1.55; text-align: center;
+}
+
+/* Selo de status: verde = aberto, vinho = fechado (o texto também diz, a cor não é a única pista) */
+.selo-horario {
+  display: inline-flex; align-items: flex-start; gap: 0.55rem;
+  max-width: 100%; padding: 0.3rem 0.95rem;
+  border: 1.5px solid currentColor; border-radius: 1.1rem;
+  font-size: 0.9375rem; line-height: 1.4; text-align: left;
+}
+.selo-horario:empty { display: none; }
+.selo-horario--aberto { color: var(--verde); }
+.selo-horario--fechado { color: var(--vinho); }
+.selo-horario__ponto { flex: none; width: 0.55rem; height: 0.55rem; margin-top: 0.42em; border: 1.5px solid currentColor; border-radius: 50%; }
+.selo-horario--aberto .selo-horario__ponto { background: currentColor; }
+
+/* Avisos de almoço (só fora das 11h às 14h) e de casa fechada na sacola */
+.aviso-almoco { font-size: 0.9375rem; line-height: 1.35; text-align: center; }
+.sacola__selo { margin-bottom: 1rem; }
+.sacola__nota { margin: -0.45rem 0 0.9rem; font-size: 0.9375rem; line-height: 1.35; }
+.sacola__fechado { margin: 0 0 0.75rem; color: var(--vinho); font-size: 1rem; line-height: 1.35; }
+
+
+/* ==========================================================================
+   23. MARCA — fotos reais, símbolo da marca e textura do padrão
+   Só ACRESCENTA. As cores seguem as do logotipo (--verde, --vinho). A textura do
+   padrão já vem a 12% de opacidade dentro do próprio SVG (assets/padrao-sutil.svg).
+   ========================================================================== */
+/* Foto da família dentro da carta (acima do texto) */
+.carta__foto { margin-bottom: 1.75rem; }
+
+/* Símbolo da marca (coração de linha contínua): só onde há tamanho para o traço fino aparecer */
+.coracao--linha { width: 30px; }
+.assinatura__coracao--linha { width: 26px; margin-top: 0.2rem; }
+
+/* "Recados da casa": textura sutil ao redor do bilhete; o texto fica sobre creme liso */
+.secao--recados {
+  background: var(--creme) url("../assets/padrao-sutil.svg") repeat center top / 180px auto;
+  /* a textura começa onde acaba a seção de cima (usa a folga dela): o bilhete fica no meio, sem sair do lugar */
+  margin-top: calc(-1 * clamp(3.5rem, 8vw, 7rem)); padding-top: clamp(3.5rem, 8vw, 7rem);
+}
+.bilhete { background: var(--creme); }
+
+
+/* ==========================================================================
+   24. CONTE PRA GENTE — convite para avaliar o Radici no Google
+   Só ACRESCENTA. Reaproveita .carta (moldura fina de bilhete), .titulo-assinatura, .btn e
+   .assinatura. Nada animado (as cursivas são estáticas). Estrelas só de contorno, em vinho.
+   ========================================================================== */
+.secao--convite { padding-top: clamp(3rem, 6vw, 5rem); }
+.convite { text-align: center; }
+.convite__titulo { --ta-tam: clamp(2.25rem, 1.5rem + 3vw, 3.25rem); display: grid; justify-items: center; margin-bottom: 1.25rem; }
+.convite__titulo .ta-astina { margin-inline: 0; }
+.convite__estrelas { display: flex; justify-content: center; gap: 0.4rem; margin-bottom: 1.75rem; color: var(--vinho); }
+.convite__estrelas .icone { width: 16px; height: 16px; stroke-width: 1.25; }
+.convite__texto { display: grid; gap: 1rem; max-width: 32.5rem; margin-inline: auto; font-size: clamp(1.125rem, 1.05rem + 0.3vw, 1.1875rem); line-height: 1.7; }
+.convite__texto p { text-wrap: balance; }                       /* sem palavra sozinha no fim da linha */
+.convite__acao { display: grid; justify-items: center; gap: 0.65rem; margin-top: 2.25rem; }
+.convite__nota { font-size: 0.9375rem; line-height: 1.3; }
+.convite .assinatura { margin-top: 2rem; }
+.convite .assinatura__texto { font-size: clamp(1.5rem, 6.4vw, 1.875rem); line-height: 1.15; }   /* cabe numa linha no celular */

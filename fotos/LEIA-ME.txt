@@ -1,18 +1,23 @@
 FOTOS DO SITE — Radici d'Amore
 
-Basta soltar o arquivo aqui, com EXATAMENTE este nome (letras minúsculas, .jpg).
+As fotos já colocadas (hero, nossa-casa, familia, empanadas, dia-segunda a dia-sexta, panquecas, pet-friendly) são GERADAS a partir dos originais em
+fotos-originais/ por:  node tools/otimizar-fotos.js  (WebP em vários tamanhos, só recorte, sem filtro).
+Para trocar uma delas, salve o novo original em fotos-originais/ com o mesmo nome e rode o script.
+
+Qualquer foto nova pode ser solta aqui, com EXATAMENTE o nome da lista abaixo (minúsculas, .jpg).
 Enquanto a foto não existir, o site mostra um quadro elegante no lugar (placeholder).
 
-  hero.jpg                       capa (topo do site)
-  dia-segunda.jpg                prato do dia de segunda
-  dia-terca.jpg                  prato do dia de terça
-  dia-quarta.jpg                 prato do dia de quarta
-  dia-quinta.jpg                 prato do dia de quinta
-  dia-sexta.jpg                  prato do dia de sexta (lasanha)
-  empanadas.jpg                  empanadas argentinas
-  panquecas.jpg                  panquecas Radici (aparece no cardápio)
-  nossa-casa.jpg                 ambiente / família
-  pet-friendly.jpg               foto do cachorro (bloco "Pet friendly")
+  hero-*.webp                    capa (já no site)
+  dia-segunda.jpg                prato do dia de segunda: spaghetti ao molho bechamel e frango (já no site)
+  dia-terca.jpg                  prato do dia de terça: macarrão ao pomodoro e tiras de carne (já no site)
+  dia-quarta.jpg                 prato do dia de quarta: ravioli ao molho de frango (já no site)
+  dia-quinta.jpg                 prato do dia de quinta: à carbonara (já no site)
+  dia-sexta.jpg                  prato do dia de sexta: lasanha (já no site)
+  empanadas-*.webp               empanada argentina (já no site; captura de tela, trocar pelo original)
+  panquecas.jpg                  panquecas Radici (já no site, aba Panquecas do cardápio)
+  nossa-casa-*.webp              "Feito com amor": mãos esticando a massa (já no site)
+  familia-*.webp                 "Mensagem da família" (já no site)
+  pet-friendly.jpg               cachorro (bloco "Pet friendly"; já no site, vem de uma captura de story: trocar pelo original)
 
 Dicas
 - Tamanho ideal: 1600 px de largura, formato horizontal (proporção 4:3), até ~300 KB.
