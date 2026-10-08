@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#F4E6CD">
 
   <title>Radici d'Amore · Bistrò de massas frescas em Fazenda Rio Grande</title>
-  <meta name="description" content="Radici d'Amore: bistrô de família em Fazenda Rio Grande (PR), com massas frescas artesanais, prato do dia, empanadas argentinas, risotto e sobremesas feitas à mão. Cozinha ítalo-argentina, feita com amor. Pet friendly.">
+  <meta name="description" content="Radici d'Amore: bistrô de família em Fazenda Rio Grande (PR), com massas frescas artesanais, prato do dia, empanadas argentinas, risotto e sobremesas feitas à mão. Cozinha italiana, feita com amor. Pet friendly.">
 
   <!-- URL do site (GitHub Pages). Se trocar de endereço/domínio, atualize aqui, em og:image e no JSON-LD abaixo. -->
   <link rel="canonical" href="https://cammeo-eng.github.io/radicid-amore/">
@@ -52,7 +52,7 @@
     "@context": "https://schema.org",
     "@type": "Restaurant",
     "name": "Radici d'Amore",
-    "description": "Bistrô de massas frescas artesanais, com cozinha ítalo-argentina, em Fazenda Rio Grande (PR).",
+    "description": "Bistrô de massas frescas artesanais, com cozinha italiana, em Fazenda Rio Grande (PR).",
     "servesCuisine": ["Italiana", "Argentina"],
     "telephone": "+55 41 98486-7724",
     "url": "https://cammeo-eng.github.io/radicid-amore/",
@@ -156,7 +156,7 @@
             <span class="sr-only"> ao Radici d'Amore, bistrô de massas frescas em Fazenda Rio Grande</span>
           </h1>
           <p class="hero__lead">Estamos muito felizes em receber você em nossa casa!</p>
-          <p class="hero__linha">Massas frescas artesanais · Bistrò ítalo-argentino · Pet friendly · Fazenda Rio Grande</p>
+          <p class="hero__linha">Massas frescas artesanais · Bistrò italiano · Pet friendly · Fazenda Rio Grande</p>
           <div class="hero__acoes">
             <a class="btn btn--cheio" href="#prato-do-dia">Ver o prato de hoje</a>
             <a class="btn btn--contorno" href="#cardapio">Ver cardápio</a>
@@ -189,51 +189,33 @@
       </div>
     </section>
 
-    <!-- Divisor com o coraçãozinho (1 dos 5 da casa) -->
-    <div class="contido">
-      <div class="divisor" aria-hidden="true">
-        <span class="divisor__linha"></span>
-        <img class="coracao coracao--linha" src="assets/coracao-linha.svg" width="30" height="24" alt="">
-        <span class="divisor__linha"></span>
-      </div>
-    </div>
-
-    <!-- ============ DA ITÁLIA À ARGENTINA · EMPANADAS ============ -->
-    <section class="secao secao--empanadas" id="empanadas" aria-labelledby="empanadas-titulo">
+    <!-- ============ RECADOS DA CASA ============ -->
+    <section class="secao secao--recados" id="recados" aria-labelledby="recados-titulo">
       <div class="contido">
-        <div class="empanadas__topo">
-          <figure class="foto foto--esq empanadas__foto reveal" data-foto style="--ar:4/3">
-            <div class="foto__vazio" aria-hidden="true"><div class="foto__vazio-in"><span class="foto__nome">empanadas</span></div></div>
-            <img class="foto__img" src="fotos/empanadas-511.webp" srcset="fotos/empanadas-400.webp 400w, fotos/empanadas-511.webp 511w" sizes="(min-width: 48rem) 460px, 100vw" width="511" height="383" alt="Empanada argentina de massa folhada aberta, com recheio de carne e molho, sobre um prato branco" loading="lazy" decoding="async">
-          </figure>
-
-          <div class="empanadas__cab reveal">
-            <h2 class="titulo-assinatura titulo-assinatura--duplo" id="empanadas-titulo">
-              <span class="ta-linha"><span class="ta-fonde">Da</span> <span class="ta-astina">Itália</span></span>
-              <span class="ta-linha"><span class="ta-fonde">à</span> <span class="ta-astina">Argentina</span><span class="ta-fonde ta-reticencias">...</span></span>
-              <span class="sr-only"> Empanadas Argentinas</span>
-            </h2>
-            <p class="abertura empanadas__lead">Um pedacinho da Argentina, com massa folhada feita para derreter na boca.</p>
-            <div class="selo-preco" role="group" aria-label="Preço único: cada empanada">
-              <span class="selo-preco__valor" data-preco-cat="Da Itália à Argentina: Empanadas Argentinas"></span>
-              <span class="selo-preco__rot">preço único</span>
-            </div>
-          </div>
+        <div class="bilhete reveal">
+          <h2 class="bilhete__titulo" id="recados-titulo">recados da casa</h2>
+          <ul class="bilhete__lista">
+            <li>Aqui nada vem pronto. Sua massa é finalizada na hora, então pode levar de 15 a 25 minutinhos. Prometemos que vale cada um deles.</li>
+            <li>Pagamentos são feitos diretamente no balcão.</li>
+            <li>Somos pet friendly: seu companheiro de quatro patas é bem-vindo!</li>
+            <li>Consulte a disponibilidade dos nossos produtos!</li>
+          </ul>
         </div>
-
-        <ul class="empanadas__lista" id="empanadas-lista"></ul>
       </div>
     </section>
 
-    <!-- ============ PRATO DESTAQUE ============ -->
-    <section class="secao secao--destaque" id="destaque" aria-labelledby="destaque-titulo">
-      <div class="contido">
-        <header class="secao__cab reveal">
-          <h2 class="titulo-assinatura" id="destaque-titulo"><span class="ta-fonde">Prato</span> <span class="ta-astina">destaque</span></h2>
-          <p class="abertura">O prato que a gente escolhe com carinho a cada mês.</p>
-        </header>
+    <div class="faixa-padrao faixa-padrao--fina" aria-hidden="true"></div>
 
-        <article class="prato-mes reveal" id="prato-mes"></article>
+    <!-- ============ CARDÁPIO COMPLETO ============ -->
+    <section class="secao secao--cardapio" id="cardapio" aria-labelledby="cardapio-titulo">
+      <div class="contido">
+        <h2 class="cardapio__titulo reveal" id="cardapio-titulo">Cardápio</h2>
+      </div>
+      <nav class="chips" id="chips" aria-label="Categorias do cardápio">
+        <ul class="chips__lista contido" id="chips-lista"></ul>
+      </nav>
+      <div class="contido">
+        <div class="cardapio__lista" id="cardapio-lista"></div>
       </div>
     </section>
 
@@ -286,18 +268,51 @@
       </div>
     </section>
 
-    <div class="faixa-padrao faixa-padrao--fina" aria-hidden="true"></div>
-
-    <!-- ============ CARDÁPIO COMPLETO ============ -->
-    <section class="secao secao--cardapio" id="cardapio" aria-labelledby="cardapio-titulo">
-      <div class="contido">
-        <h2 class="cardapio__titulo reveal" id="cardapio-titulo">Cardápio</h2>
+    <!-- Divisor com o coraçãozinho (1 dos 5 da casa) -->
+    <div class="contido">
+      <div class="divisor" aria-hidden="true">
+        <span class="divisor__linha"></span>
+        <img class="coracao coracao--linha" src="assets/coracao-linha.svg" width="30" height="24" alt="">
+        <span class="divisor__linha"></span>
       </div>
-      <nav class="chips" id="chips" aria-label="Categorias do cardápio">
-        <ul class="chips__lista contido" id="chips-lista"></ul>
-      </nav>
+    </div>
+
+    <!-- ============ DA ITÁLIA À ARGENTINA · EMPANADAS ============ -->
+    <section class="secao secao--empanadas" id="empanadas" aria-labelledby="empanadas-titulo">
       <div class="contido">
-        <div class="cardapio__lista" id="cardapio-lista"></div>
+        <div class="empanadas__topo">
+          <figure class="foto foto--esq empanadas__foto reveal" data-foto style="--ar:4/3">
+            <div class="foto__vazio" aria-hidden="true"><div class="foto__vazio-in"><span class="foto__nome">empanadas</span></div></div>
+            <img class="foto__img" src="fotos/empanadas-511.webp" srcset="fotos/empanadas-400.webp 400w, fotos/empanadas-511.webp 511w" sizes="(min-width: 48rem) 460px, 100vw" width="511" height="383" alt="Empanada argentina de massa folhada aberta, com recheio de carne e molho, sobre um prato branco" loading="lazy" decoding="async">
+          </figure>
+
+          <div class="empanadas__cab reveal">
+            <h2 class="titulo-assinatura titulo-assinatura--duplo" id="empanadas-titulo">
+              <span class="ta-linha"><span class="ta-fonde">Da</span> <span class="ta-astina">Itália</span></span>
+              <span class="ta-linha"><span class="ta-fonde">à</span> <span class="ta-astina">Argentina</span><span class="ta-fonde ta-reticencias">...</span></span>
+              <span class="sr-only"> Empanadas Argentinas</span>
+            </h2>
+            <p class="abertura empanadas__lead">Um pedacinho da Argentina, com massa folhada feita para derreter na boca.</p>
+            <div class="selo-preco" role="group" aria-label="Preço único: cada empanada">
+              <span class="selo-preco__valor" data-preco-cat="Da Itália à Argentina: Empanadas Argentinas"></span>
+              <span class="selo-preco__rot">preço único</span>
+            </div>
+          </div>
+        </div>
+
+        <ul class="empanadas__lista" id="empanadas-lista"></ul>
+      </div>
+    </section>
+
+    <!-- ============ PRATO DESTAQUE ============ -->
+    <section class="secao secao--destaque" id="destaque" aria-labelledby="destaque-titulo">
+      <div class="contido">
+        <header class="secao__cab reveal">
+          <h2 class="titulo-assinatura" id="destaque-titulo"><span class="ta-fonde">Prato</span> <span class="ta-astina">destaque</span></h2>
+          <p class="abertura">O prato que a gente escolhe com carinho a cada mês.</p>
+        </header>
+
+        <article class="prato-mes reveal" id="prato-mes"></article>
       </div>
     </section>
 
@@ -370,11 +385,14 @@
           </li>
         </ul>
 
-        <!-- Pet friendly. A foto é fotos/pet-friendly.jpg (gerada por tools/otimizar-fotos.js a partir de fotos-originais/) -->
+        <!-- Pet friendly. A foto é vertical: fotos/pet-friendly.webp + .jpg (gerados por tools/otimizar-fotos.js a partir de fotos-originais/); o enquadramento é o object-position do CSS (seção 26) -->
         <div class="pet">
-          <figure class="foto foto--esq pet__foto reveal" data-foto style="--ar:4/3">
+          <figure class="foto foto--esq pet__foto reveal" data-foto style="--ar:4/5">
             <div class="foto__vazio" aria-hidden="true"><div class="foto__vazio-in"><span class="foto__nome">pet friendly</span></div></div>
-            <img class="foto__img" src="fotos/pet-friendly.jpg" width="1200" height="900" alt="Cachorrinho preto e caramelo sentado numa cadeira de madeira do Radici d'Amore, sobre uma toalha listrada de azul e branco" loading="lazy" decoding="async">
+            <picture>
+              <source type="image/webp" srcset="fotos/pet-friendly.webp">
+              <img class="foto__img" src="fotos/pet-friendly.jpg" width="1200" height="1600" alt="Cachorrinho de bandana azul sentado no banco do Radici d'Amore, um bistrô pet friendly" loading="lazy" decoding="async">
+            </picture>
           </figure>
           <div class="pet__texto reveal">
             <h3 class="titulo-assinatura"><span class="ta-fonde">Pet</span> <span class="ta-astina">friendly</span></h3>
@@ -386,21 +404,6 @@
           <p class="nome-significado__par"><span class="nome-significado__nome">Radici</span> <span class="nome-significado__trad">raízes</span></p>
           <p class="nome-significado__par"><span class="nome-significado__nome">d'Amore</span> <span class="nome-significado__trad">de amor</span></p>
           <p class="nome-significado__texto">Esse é o nome e essa é a nossa forma de cozinhar.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ RECADOS DA CASA ============ -->
-    <section class="secao secao--recados" id="recados" aria-labelledby="recados-titulo">
-      <div class="contido">
-        <div class="bilhete reveal">
-          <h2 class="bilhete__titulo" id="recados-titulo">recados da casa</h2>
-          <ul class="bilhete__lista">
-            <li>Aqui nada vem pronto. Sua massa é finalizada na hora, então pode levar de 15 a 25 minutinhos. Prometemos que vale cada um deles.</li>
-            <li>Pagamentos são feitos diretamente no balcão.</li>
-            <li>Somos pet friendly: seu companheiro de quatro patas é bem-vindo!</li>
-            <li>Consulte a disponibilidade dos nossos produtos!</li>
-          </ul>
         </div>
       </div>
     </section>

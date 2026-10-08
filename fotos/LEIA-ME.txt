@@ -17,7 +17,7 @@ Enquanto a foto não existir, o site mostra um quadro elegante no lugar (placeho
   panquecas.jpg                  panquecas Radici (já no site, aba Panquecas do cardápio)
   nossa-casa-*.webp              "Feito com amor": mãos esticando a massa (já no site)
   familia-*.webp                 "Mensagem da família" (já no site)
-  pet-friendly.jpg               cachorro (bloco "Pet friendly"; já no site, vem de uma captura de story: trocar pelo original)
+  pet-friendly.jpg / .webp       cachorrinho de bandana azul (bloco "Pet friendly"; já no site, foto vertical 1200x1600, enquadrada pelo CSS)
 
 Dicas
 - Tamanho ideal: 1600 px de largura, formato horizontal (proporção 4:3), até ~300 KB.
@@ -25,4 +25,4 @@ Dicas
 - A foto é cortada para preencher o quadro; deixe o assunto (o prato, o cachorro) no centro.
 - Depois de colocar cada foto, ajuste o texto alternativo (alt) dela no index.html
   (ou em js/main.js, no caso dos pratos do dia) descrevendo o que aparece de verdade.
-  Ex.: pet-friendly.jpg -> alt="Cachorro à mesa no Radici d'Amore" (troque pela descrição real).
+  Ex.: pet-friendly.jpg -> alt="Cachorrinho de bandana azul sentado no banco do Radici d'Amore, um bistrô pet friendly".

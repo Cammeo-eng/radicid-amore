@@ -233,6 +233,22 @@
                   "nome": "Macarrão"
                 }
               ]
+            },
+            {
+              "id": "pimenta",
+              "titulo": "Pimenta",
+              "obrigatorio": true,
+              "tipo": "unica",
+              "erro": "Escolha com ou sem pimenta",
+              "minuscula": true,
+              "itens": [
+                {
+                  "nome": "Com pimenta"
+                },
+                {
+                  "nome": "Sem pimenta"
+                }
+              ]
             }
           ]
         },
@@ -350,6 +366,23 @@
           "preco": 37
         }
       ],
+      "pimenta": {
+        "molho": "monte-molho-molho-carbonara",
+        "id": "pimenta",
+        "titulo": "Pimenta",
+        "obrigatorio": true,
+        "tipo": "unica",
+        "erro": "Escolha com ou sem pimenta",
+        "minuscula": true,
+        "itens": [
+          {
+            "nome": "Com pimenta"
+          },
+          {
+            "nome": "Sem pimenta"
+          }
+        ]
+      },
       "passo_3_adicionais": [
         {
           "id": "monte-adicional-bacon",
@@ -522,7 +555,15 @@
           "preco": 28.9,
           "categoriaPedido": "massas",
           "pedivel": true,
-          "nota": "proteína a consultar"
+          "nota": "proteína a consultar",
+          "diasDisponiveis": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "diasRotulo": "segunda a sexta"
         }
       ]
     },
@@ -579,7 +620,15 @@
                 }
               ]
             }
-          ]
+          ],
+          "diasDisponiveis": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "diasRotulo": "segunda a sexta"
         }
       ]
     },

@@ -41,9 +41,26 @@ const PRATOS = [
   { origem: 'prato-quinta.jpg', nome: 'dia-quinta', recorte: { left: 4, top: 270, width: 680, height: 510 } },      // à carbonara
   { origem: 'prato-sexta.jpg', nome: 'dia-sexta', recorte: { left: 4, top: 265, width: 676, height: 507 } },        // lasanha
   { origem: 'panquecas.jpg', nome: 'panquecas', recorte: { left: 4, top: 406, width: 682, height: 512 } },         // panqueca Radici (ragu de carne)
-  // cachorro: captura de story; o recorte deixa de fora as faixas de texto (no alto e embaixo) e centra o cachorro
-  { origem: 'pet-friendly.jpg', nome: 'pet-friendly', recorte: { left: 0, top: 225, width: 480, height: 360 } },
 ];
+
+// Fotos inteiras, SEM recorte: lado maior até 1600 px (sem ampliar), JPG qualidade 82 + WebP, mesma cor e brilho do original.
+// O enquadramento é feito na página, no CSS (object-fit: cover + object-position).
+const INTEIRAS = [
+  { origem: 'pet-friendly.jpg', nome: 'pet-friendly' },   // cachorrinho de bandana azul no banco verde, com o letreiro do Radici no alto (vertical)
+];
+
+async function inteiras() {
+  for (const f of INTEIRAS) {
+    const arq = path.join(ORIG, f.origem);
+    if (!fs.existsSync(arq)) { console.warn('  (não achei, pulei) ' + f.origem); continue; }
+    const base = () => sharp(arq).rotate().resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true, kernel: 'lanczos3' });
+    for (const [ext, grava] of [['jpg', (s, d) => s.jpeg({ quality: 82, mozjpeg: true }).toFile(d)], ['webp', (s, d) => s.webp({ quality: 82, effort: 6 }).toFile(d)]]) {
+      const destino = path.join(SAIDA, `${f.nome}.${ext}`);
+      await grava(base(), destino);
+      console.log(`  ${path.relative(raiz, destino)}  ${(fs.statSync(destino).size / 1024).toFixed(0)} KB`);
+    }
+  }
+}
 
 async function pratos() {
   for (const f of PRATOS) {
@@ -87,5 +104,6 @@ async function og() {
   console.log('Fotos otimizadas:');
   await fotos();
   await pratos();
+  await inteiras();
   await og();
 })().catch((e) => { console.error(e); process.exit(1); });

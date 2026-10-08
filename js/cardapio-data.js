@@ -26,8 +26,16 @@
                     - "itensDe": "recheios" -> usa a lista "recheios" da própria categoria
                     - tipo "texto" = campo livre (ex.: "Qual sabor?", com "dica")
                     - "opcoes" na categoria vale para todos os itens dela (ex.: Piatto per due)
+                    - "erro": mensagem em vinho quando falta a escolha obrigatória (ex.: "Escolha com ou sem pimenta")
+                    - "minuscula": true -> na sacola e no WhatsApp a escolha vai em minúsculas (ex.: "sem pimenta")
+   pimenta ........ só em "Monte sua massa": grupo de escolha obrigatória que aparece abaixo dos molhos quando o
+                    molho com o id de "pimenta.molho" (carbonara) está marcado. Não muda o preço.
    nomePedido ..... nome mais curto para a sacola / WhatsApp (opcional)
    nota ........... observação automática do item (ex.: PF aconchego: "proteína a consultar")
+   diasDisponiveis  dias da semana em que o item pode ser pedido (0 = domingo ... 6 = sábado, fuso de São Paulo).
+                    Fora deles o botão fica desativado ("disponível de segunda a sexta") e, se o item já estava na
+                    sacola, ele fica marcado em vinho e o envio é bloqueado até o cliente removê-lo (ex.: PF aconchego)
+   diasRotulo ..... os mesmos dias em texto, usado nos avisos: "segunda a sexta"
    nomeConfig ..... o nome vem de CONFIG (ex.: Prato do mês -> CONFIG.pratoDoMes; vazio = valor a confirmar)
    {acrescimo} .... dentro de "obs": vira "R$ 5" a partir do preço da opção (o valor nunca é escrito duas vezes)
    ============================================================ */
@@ -57,6 +65,21 @@ const CONFIG = {
     aviso: "Tudo é feito com tempo, cuidado e carinho. Por isso, em dias de grande movimento, nosso atendimento poderá ser encerrado antes do horário previsto."
   }
 };
+
+// PRATO COROADO: removido a pedido da cliente, pode voltar no futuro
+// (fica aqui, acima da linha do gerador, para não ser apagado quando rodar tools/gerar-cardapio-data.js).
+// Para reativar: acrescente o item abaixo em "Prato destaque" no radici-cardapio.json (ao lado do "Prato do mês"),
+// rode node tools/gerar-cardapio-data.js, coloque a foto em fotos/ravioli-carne-desfiada.jpg e recoloque o bloco
+// visual no js/main.js (o desenho antigo está no histórico do git, commit 2d97166, função do prato destaque).
+//   {
+//     "id": "ravioli-carne-desfiada",
+//     "nome": "Ravioli de carne desfiada",
+//     "selo": "Coroado um ano",
+//     "descricao": "Massa fresca tipo ravioli recheado de carne desfiada cozida por 12 horas, ao molho da carne com um toque de vinho ou de leite de coco, finalizado com ervilhas verdes e queijo. Serve 1 pessoa.",
+//     "preco": 53.9,
+//     "categoriaPedido": "massas",
+//     "pedivel": true
+//   },
 
 /* ===== CARDÁPIO · gerado de radici-cardapio.json (não edite abaixo desta linha) ===== */
 const CARDAPIO = {
@@ -294,6 +317,22 @@ const CARDAPIO = {
                   "nome": "Macarrão"
                 }
               ]
+            },
+            {
+              "id": "pimenta",
+              "titulo": "Pimenta",
+              "obrigatorio": true,
+              "tipo": "unica",
+              "erro": "Escolha com ou sem pimenta",
+              "minuscula": true,
+              "itens": [
+                {
+                  "nome": "Com pimenta"
+                },
+                {
+                  "nome": "Sem pimenta"
+                }
+              ]
             }
           ]
         },
@@ -411,6 +450,23 @@ const CARDAPIO = {
           "preco": 37
         }
       ],
+      "pimenta": {
+        "molho": "monte-molho-molho-carbonara",
+        "id": "pimenta",
+        "titulo": "Pimenta",
+        "obrigatorio": true,
+        "tipo": "unica",
+        "erro": "Escolha com ou sem pimenta",
+        "minuscula": true,
+        "itens": [
+          {
+            "nome": "Com pimenta"
+          },
+          {
+            "nome": "Sem pimenta"
+          }
+        ]
+      },
       "passo_3_adicionais": [
         {
           "id": "monte-adicional-bacon",
@@ -583,7 +639,15 @@ const CARDAPIO = {
           "preco": 28.9,
           "categoriaPedido": "massas",
           "pedivel": true,
-          "nota": "proteína a consultar"
+          "nota": "proteína a consultar",
+          "diasDisponiveis": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "diasRotulo": "segunda a sexta"
         }
       ]
     },
@@ -640,7 +704,15 @@ const CARDAPIO = {
                 }
               ]
             }
-          ]
+          ],
+          "diasDisponiveis": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "diasRotulo": "segunda a sexta"
         }
       ]
     },

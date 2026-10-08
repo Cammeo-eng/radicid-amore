@@ -81,8 +81,12 @@
     return { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }[abrev];
   }
 
+  // Itens com "diasDisponiveis" (ex.: PF aconchego, de segunda a sexta) só podem ser pedidos nesses dias da semana.
+  const temDias = (item) => Array.isArray(item.diasDisponiveis);
+
   // Prato do dia: só o de HOJE pode ser pedido. Sábado e domingo: nenhum botão.
   function disponibilidade(item) {
+    if (temDias(item)) return item.diasDisponiveis.includes(diaDaSemana()) ? { ok: true } : { ok: false, diasRotulo: item.diasRotulo || '' };
     if (!item.dia) return { ok: true };
     const hoje = DIA_SLUG[diaDaSemana()];
     if (!hoje) return { ok: false, fimDeSemana: true };
@@ -131,7 +135,7 @@
     });
     if (c.id === 'monte-sua-massa') {
       const mapa = (lista) => new Map((lista || []).map((x) => [x.id, x]));
-      MONTE = { nome: c.categoria, ordem: ordemCardapio++, massas: mapa(c.passo_1_massas), molhos: mapa(c.passo_2_molhos), adicionais: mapa(c.passo_3_adicionais) };
+      MONTE = { nome: c.categoria, ordem: ordemCardapio++, massas: mapa(c.passo_1_massas), molhos: mapa(c.passo_2_molhos), adicionais: mapa(c.passo_3_adicionais), pimenta: c.pimenta || null };
     }
   });
 
@@ -161,7 +165,7 @@
   let retiradasPorDia = false; // linhas do prato do dia de outro dia foram retiradas
 
   function chaveDe(l) {
-    if (l.tipo === 'monte') return `monte|${l.massa}|${l.molho}|${[...l.adicionais].sort().join(',')}`;
+    if (l.tipo === 'monte') return `monte|${l.massa}|${l.molho}|${[...l.adicionais].sort().join(',')}|${l.pimenta || ''}`;
     const sel = Object.keys(l.sel).sort().map((k) => `${k}=${l.sel[k]}`).join(';');
     return `${l.id}|${sel}|${(l.obs || '').trim().toLowerCase()}`;
   }
@@ -173,13 +177,20 @@
     if (b.tipo === 'monte') {
       if (!MONTE || !MONTE.massas.has(b.massa) || !MONTE.molhos.has(b.molho)) return null;
       const adicionais = [...new Set((b.adicionais || []).filter((id) => MONTE.adicionais.has(id)))];
-      const l = { tipo: 'monte', id: 'monte-sua-massa', massa: b.massa, molho: b.molho, adicionais, qtd, t: b.t || 0 };
+      // pimenta: só vale (e é obrigatória) para o molho que a pede (carbonara); com outro molho a escolha é apagada
+      let pimenta = null;
+      if (MONTE.pimenta && MONTE.pimenta.molho === b.molho) {
+        if (!MONTE.pimenta.itens.some((o) => o.nome === b.pimenta)) return null;
+        pimenta = b.pimenta;
+      }
+      const l = { tipo: 'monte', id: 'monte-sua-massa', massa: b.massa, molho: b.molho, adicionais, pimenta, qtd, t: b.t || 0 };
       l.chave = chaveDe(l);
       return l;
     }
     const item = ITENS.get(b.id);
     if (!item) return null;
-    if (!disponibilidade(item).ok) { retiradasPorDia = true; return null; }
+    // prato do dia de outro dia sai do pedido; item "só em certos dias" (PF) fica na sacola, marcado, até o cliente remover
+    if (!disponibilidade(item).ok && !temDias(item)) { retiradasPorDia = true; return null; }
     const sel = {};
     for (const g of item.opcoes) {
       const v = b.sel && b.sel[g.id];
@@ -249,7 +260,7 @@
       const base = cent(molho.preco);
       return {
         cat: 'massas', ordem: MONTE.ordem, nome: MONTE.nome,
-        detalhe: `${massa.nome} ${fraseMolho(molho.nome)}`,
+        detalhe: `${massa.nome} ${fraseMolho(molho.nome)}${l.pimenta ? ' · ' + (MONTE.pimenta.minuscula ? minuscula(l.pimenta) : l.pimenta) : ''}`,
         baseCent: base, extras, unit: base + extras.reduce((s, e) => s + e.cent, 0), notas: [],
       };
     }
@@ -263,7 +274,7 @@
     for (const g of item.opcoes) {
       const v = l.sel[g.id];
       if (v == null || v === '') continue;
-      if (g.viraNome) nome = v; else partes.push(v);
+      if (g.viraNome) nome = v; else partes.push(g.minuscula ? minuscula(v) : v);
     }
     const unit = unidadeCent(item, l.sel);
     return {
@@ -342,8 +353,8 @@
     depoisDeAdicionar(nomeCurto(id));
     return linha;
   }
-  function adicionarMonte({ massa, molho, adicionais }) {
-    const l = normalizarLinha({ tipo: 'monte', massa, molho, adicionais: adicionais || [], qtd: 1 });
+  function adicionarMonte({ massa, molho, adicionais, pimenta }) {
+    const l = normalizarLinha({ tipo: 'monte', massa, molho, adicionais: adicionais || [], pimenta, qtd: 1 });
     if (!l) return null;
     const linha = juntarLinha(l);
     depoisDeAdicionar(MONTE.nome);
@@ -373,9 +384,11 @@
   // Tira do pedido o prato do dia de outro dia (ex.: a página ficou aberta de um dia para o outro)
   function descartarIndisponiveis() {
     const antes = estado.linhas.length;
-    estado.linhas = estado.linhas.filter((l) => l.tipo === 'monte' || disponibilidade(ITENS.get(l.id)).ok);
+    estado.linhas = estado.linhas.filter((l) => l.tipo === 'monte' || temDias(ITENS.get(l.id)) || disponibilidade(ITENS.get(l.id)).ok);
     if (estado.linhas.length !== antes) retiradasPorDia = true;
   }
+  // Linha de item que hoje não está disponível (ex.: PF no sábado): continua na sacola, mas bloqueia o envio
+  const linhaIndisponivel = (l) => l.tipo !== 'monte' && !disponibilidade(ITENS.get(l.id)).ok;
   let avisouRetiradas = false;
 
   /* ---------- 10. Barra, aviso ---------- */
@@ -422,7 +435,8 @@
     if (!item) { wrap.replaceChildren(); return; }
     const disp = disponibilidade(item);
     if (!disp.ok) {
-      if (disp.fimDeSemana) wrap.replaceChildren(); // sábado e domingo: sem botão
+      if (temDias(item)) wrap.replaceChildren(el('button', { class: 'btn btn--contorno btn--pequeno', type: 'button', 'aria-disabled': 'true' }, `disponível de ${disp.diasRotulo}`));
+      else if (disp.fimDeSemana) wrap.replaceChildren(); // sábado e domingo: sem botão
       else wrap.replaceChildren(el('button', { class: 'btn btn--contorno btn--pequeno', type: 'button', 'aria-disabled': 'true' }, `disponível na ${disp.quando}`));
       return;
     }
@@ -570,7 +584,7 @@
         const falta = g.obrigatorio && (g.tipo === 'texto' ? !String(v || '').trim() : !v);
         if (!falta) return;
         const e = erros.get(g.id);
-        e.textContent = g.tipo === 'texto' ? (g.id === 'sabor' ? 'Informe o sabor.' : 'Preencha este campo.') : 'Escolha uma opção.';
+        e.textContent = g.erro || (g.tipo === 'texto' ? (g.id === 'sabor' ? 'Informe o sabor.' : 'Preencha este campo.') : 'Escolha uma opção.');
         e.hidden = false;
         if (g.tipo === 'texto') $(`#op-${n}-${g.id}`, form).setAttribute('aria-invalid', 'true');
         if (!primeiro) primeiro = g;
@@ -697,11 +711,13 @@
     const obs = [...d.notas, l.obs].filter(Boolean);
     if (obs.length) info.push('obs.: ' + obs.join(' · '));
     const nome = d.nome;
-    return el('li', { class: 'linha', 'data-chave': l.chave },
+    const indisponivel = linhaIndisponivel(l);   // ex.: PF aconchego aberto no sábado
+    return el('li', { class: indisponivel ? 'linha linha--indisponivel' : 'linha', 'data-chave': l.chave },
       el('div', { class: 'linha__topo' },
         el('span', { class: 'linha__nome' }, nome),
         el('span', { class: 'linha__valor' }, d.unit === null ? 'valor a confirmar' : moeda(l.qtd * d.unit))),
       info.map((t) => el('p', { class: 'linha__info' }, t)),
+      indisponivel ? el('p', { class: 'erro linha__alerta' }, `disponível só de ${ITENS.get(l.id).diasRotulo}. Remova para enviar`) : null,
       el('div', { class: 'linha__acoes' },
         el('div', { class: 'stepper', role: 'group', 'aria-label': `Quantidade de ${nome}` },
           botaoStepper('menos', `Diminuir ${nome}`, ICO_MENOS),
@@ -749,14 +765,16 @@
     renderLimpar();
   }
 
-  // Fora do expediente a sacola monta normalmente, mas o envio fica desativado (o pedido continua salvo)
+  // O envio fica desativado (o pedido continua salvo) fora do expediente ou enquanto houver na sacola um item indisponível hoje
   function renderEnvio() {
     const h = horarioAgora();
     const fechado = Boolean(h) && !h.aberto;
-    fechadoEl.hidden = !fechado;
-    fechadoEl.textContent = fechado ? h.avisoFechado : '';
-    btnEnviar.setAttribute('aria-disabled', String(fechado));
-    if (fechado) btnEnviar.setAttribute('aria-describedby', 'sacola-fechado');
+    const bloqueado = estado.linhas.some(linhaIndisponivel);
+    const aviso = fechado ? h.avisoFechado : (bloqueado ? 'Remova da sacola os itens marcados em vinho para enviar o pedido.' : '');
+    fechadoEl.hidden = !aviso;
+    fechadoEl.textContent = aviso;
+    btnEnviar.setAttribute('aria-disabled', String(fechado || bloqueado));
+    if (aviso) btnEnviar.setAttribute('aria-describedby', 'sacola-fechado');
     else btnEnviar.removeAttribute('aria-describedby');
   }
 
@@ -796,6 +814,7 @@
     if (HORARIOS) HORARIOS.atualizar();            // confere o relógio na hora do clique (selos e aviso juntos)
     const h = horarioAgora();
     if (h && !h.aberto) { renderEnvio(); return; } // fechou enquanto a sacola estava aberta
+    if (estado.linhas.some(linhaIndisponivel)) { renderEnvio(); return; } // item que hoje não está disponível: remover antes
     if (!estado.nome.trim()) {
       erroNome.textContent = 'Informe seu nome para enviar o pedido.';
       erroNome.hidden = false;

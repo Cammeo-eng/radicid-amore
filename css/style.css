@@ -20,6 +20,9 @@
                                   22. Horários (rodapé, selo de status)
                                   23. Marca (fotos, símbolo, textura)
                                   24. Conte pra gente (convite para avaliar)
+                                  25. Pimenta (Monte sua massa)
+                                  26. Foto do pet (enquadramento vertical)
+                                  27. Item indisponível hoje (sacola)
    ========================================================================== */
 
 
@@ -1282,3 +1285,24 @@ textarea.campo { min-height: 4.5rem; resize: vertical; }
 .convite__nota { font-size: 0.9375rem; line-height: 1.3; }
 .convite .assinatura { margin-top: 2rem; }
 .convite .assinatura__texto { font-size: clamp(1.5rem, 6.4vw, 1.875rem); line-height: 1.15; }   /* cabe numa linha no celular */
+
+
+/* ==========================================================================
+   25. PIMENTA no Monte sua massa
+   Só o respiro entre a lista de molhos e o grupo; o resto reaproveita .grupo, .opcoes e .erro.
+   ========================================================================== */
+.grupo--pimenta { margin-top: 1.75rem; }
+
+
+/* ==========================================================================
+   26. FOTO DO PET (vertical)
+   A foto inteira é 3:4; o quadro mostra a parte de baixo (cachorrinho inteiro, com um pedaço do letreiro no alto).
+   ========================================================================== */
+.pet__foto .foto__img { object-position: center 65%; }
+
+
+/* ==========================================================================
+   27. ITEM INDISPONÍVEL HOJE na sacola (ex.: PF aconchego no sábado)
+   Só marca o nome e o valor em vinho; a frase de aviso reaproveita .erro.
+   ========================================================================== */
+.linha--indisponivel .linha__nome, .linha--indisponivel .linha__valor { color: var(--vinho); }

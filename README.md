@@ -58,7 +58,7 @@ Os horários oficiais ficam em `js/cardapio-data.js` → `CONFIG.horarios` (form
 ## Pendências da primeira versão
 
 - Fontes Fonde e Astina em `fonts/`
-- Fotos que são capturas de tela (empanada, pratos do dia, panquecas e cachorro, ~480 a 680 px): trocar pelos originais em `fotos-originais/` e rodar `node tools/otimizar-fotos.js`
+- Fotos que são capturas de tela (empanada, pratos do dia e panquecas, ~500 a 680 px): trocar pelos originais em `fotos-originais/` e rodar `node tools/otimizar-fotos.js`
 - URL final do site (imagem de compartilhamento e dados do Google, em `index.html`)
 
 ## Estrutura

@@ -391,7 +391,10 @@
     const massas = c.passo_1_massas;
     const molhos = c.passo_2_molhos;
     const adicionais = c.passo_3_adicionais;
-    const estado = { massa: null, molho: null, adds: new Set() };
+    const estado = { massa: null, molho: null, adds: new Set(), pimenta: null };
+    // Pimenta (escolha obrigatória) só para o molho que a pede (carbonara): aparece logo abaixo da lista de molhos
+    const pim = c.pimenta || null;
+    const pedePimenta = (indiceMolho) => Boolean(pim) && indiceMolho != null && molhos[indiceMolho].id === pim.molho;
 
     $('#opcoes-massa').replaceChildren(...massas.map((m, i) => opcao({
       tipo: 'radio', grupo: 'massa', id: `massa-${i}`, valor: i, nome: m.nome, obs: m.obs,
@@ -408,6 +411,18 @@
     $('#opcoes-molho').replaceChildren(...grupos.map((g) => el('div', { class: 'opcoes-grupo' },
       el('p', { class: 'opcoes-grupo__preco' }, formatarReais(g.preco)),
       el('div', { class: 'opcoes' }, g.itens))));
+
+    let $pimenta = null;
+    let $erroPimenta = null;
+    if (pim) {
+      $erroPimenta = el('p', { class: 'erro', role: 'alert', id: 'pimenta-erro', hidden: true });
+      $pimenta = el('fieldset', { class: 'grupo grupo--pimenta', hidden: true },
+        el('legend', { class: 'grupo__legenda' }, minuscula(pim.titulo)),
+        el('div', { class: 'opcoes', role: 'radiogroup', 'aria-label': pim.titulo, 'aria-describedby': 'pimenta-erro' },
+          pim.itens.map((o, i) => opcao({ tipo: 'radio', grupo: 'pimenta', id: `pimenta-${i}`, valor: i, nome: o.nome }))),
+        $erroPimenta);
+      $('#opcoes-molho').after($pimenta);
+    }
 
     $('#opcoes-adicional').replaceChildren(...adicionais.map((a, i) => opcao({
       tipo: 'checkbox', grupo: 'adicional', id: `add-${i}`, valor: i, nome: a.nome, preco: '+ ' + formatarReais(a.preco),
@@ -427,11 +442,14 @@
       const molho = estado.molho != null ? molhos[estado.molho] : null;
       const adds = [...estado.adds].sort((a, b) => a - b).map((i) => adicionais[i]);
       const total = (molho ? molho.preco : 0) + adds.reduce((s, a) => s + a.preco, 0);
-      return { massa, molho, adds, total, pronto: Boolean(massa && molho) };
+      const pimenta = pim && estado.pimenta != null ? pim.itens[estado.pimenta] : null;
+      const precisaPimenta = pedePimenta(estado.molho);
+      return { massa, molho, adds, total, pimenta, precisaPimenta, pronto: Boolean(massa && molho && (!precisaPimenta || pimenta)) };
     }
 
-    function frase({ massa, molho, adds }) {
+    function frase({ massa, molho, adds, pimenta, precisaPimenta }) {
       const extras = adds.map((a) => ` + ${minuscula(a.nome)}`).join('');
+      if (massa && molho && precisaPimenta) return `${massa.nome} ${fraseMolho(molho.nome)} · ${pimenta ? minuscula(pimenta.nome) : 'falta escolher a pimenta'}${extras}`;
       if (massa && molho) return `${massa.nome} ${fraseMolho(molho.nome)}${extras}`;
       if (massa) return `${massa.nome}${extras} · falta escolher o molho`;
       if (molho) return `${molho.nome}${extras} · falta escolher a massa`;
@@ -444,10 +462,12 @@
       $total.textContent = r.molho ? formatarReais(r.total) : '—';
       $enviar.setAttribute('aria-disabled', String(!r.pronto));
       $aviso.hidden = true;
+      if ($pimenta) { $pimenta.hidden = !r.precisaPimenta; $erroPimenta.hidden = true; }
 
       const linhas = [];
       if (r.massa) linhas.push(['Massa', r.massa.nome, '']);
       if (r.molho) linhas.push(['Molho', r.molho.nome, formatarReais(r.molho.preco)]);
+      if (r.pimenta) linhas.push(['Pimenta', r.pimenta.nome, '']);
       r.adds.forEach((a) => linhas.push(['Adicional', a.nome, '+ ' + formatarReais(a.preco)]));
       $linhas.replaceChildren(...linhas.map(([, nome, preco]) => el('li', null,
         el('span', null, nome), el('span', { class: 'resumo__linha-preco' }, preco))));
@@ -456,6 +476,7 @@
     function primeiroFaltante() {
       if (estado.massa == null) return $('#opcoes-massa input');
       if (estado.molho == null) return $('#opcoes-molho input');
+      if (pedePimenta(estado.molho) && estado.pimenta == null) return $('input', $pimenta);
       return null;
     }
 
@@ -464,14 +485,17 @@
       if (!(i instanceof HTMLInputElement)) return;
       const v = Number(i.value);
       if (i.name === 'massa') estado.massa = v;
-      else if (i.name === 'molho') estado.molho = v;
+      else if (i.name === 'molho') {
+        estado.molho = v;
+        if (!pedePimenta(v)) { estado.pimenta = null; $$('input[name="pimenta"]').forEach((x) => { x.checked = false; }); } // trocou de molho: a escolha some
+      } else if (i.name === 'pimenta') estado.pimenta = v;
       else if (i.checked) estado.adds.add(v);
       else estado.adds.delete(v);
       atualizar();
     });
 
     function limparSelecao() {
-      estado.massa = null; estado.molho = null; estado.adds.clear();
+      estado.massa = null; estado.molho = null; estado.pimenta = null; estado.adds.clear();
       $$('#monte-passos input').forEach((i) => { i.checked = false; });
       atualizar();
     }
@@ -481,14 +505,16 @@
     $enviar.addEventListener('click', () => {
       const r = calcular();
       if (!r.pronto) {
-        $aviso.textContent = 'Escolha a massa e o molho para continuar.';
+        const faltaSoPimenta = Boolean(r.massa && r.molho && r.precisaPimenta && !r.pimenta);
+        $aviso.textContent = faltaSoPimenta ? pim.erro : 'Escolha a massa e o molho para continuar.';
         $aviso.hidden = false;
+        if (faltaSoPimenta) { $erroPimenta.textContent = pim.erro; $erroPimenta.hidden = false; }
         const alvo = primeiroFaltante();
         if (alvo) { alvo.closest('.passo').scrollIntoView({ behavior: reduzMovimento ? 'auto' : 'smooth', block: 'center' }); alvo.focus({ preventScroll: true }); }
         return;
       }
       if (window.RadiciPedido) {
-        window.RadiciPedido.adicionarMonte({ massa: r.massa.id, molho: r.molho.id, adicionais: r.adds.map((a) => a.id) });
+        window.RadiciPedido.adicionarMonte({ massa: r.massa.id, molho: r.molho.id, adicionais: r.adds.map((a) => a.id), pimenta: r.pimenta ? r.pimenta.nome : null });
         limparSelecao();
       }
     });
@@ -560,6 +586,7 @@
         precoDoItem(it)),
       serve ? el('p', { class: 'item__serve' }, serve) : null,
       desc ? el('p', { class: 'item__desc' }, desc) : null,
+      it.diasDisponiveis ? el('p', { class: 'item__obs' }, `disponível de ${it.diasRotulo}`) : null,   // ex.: PF aconchego, sempre visível
       it.obs ? el('p', { class: 'item__obs' }, o.acrescimo != null ? it.obs.replace('{acrescimo}', formatarReais(o.acrescimo)) : it.obs) : null,
       o.extra || null,
       o.pedir || (it.pedivel && it.id) ? criarPedir(o.pedir || it.id) : null);
