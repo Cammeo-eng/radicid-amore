@@ -21,7 +21,6 @@ Para testar o prato de cada dia, acrescente `?dia=quinta` (ou `segunda`, `terca`
 
 | O que mudar | Onde |
 |---|---|
-| Prato do mês | `js/cardapio-data.js` → `CONFIG.pratoDoMes` |
 | Prato de cada dia da semana | `radici-cardapio.json` → categoria "Prato do dia" |
 | Preços, nomes e descrições | `radici-cardapio.json` |
 | Endereço, iFood, horários, WhatsApp | `js/cardapio-data.js` → bloco `CONFIG` |
@@ -29,7 +28,7 @@ Para testar o prato de cada dia, acrescente `?dia=quinta` (ou `segunda`, `terca`
 
 Depois de editar o `radici-cardapio.json`, rode `node tools/gerar-cardapio-data.js` (o bloco `CONFIG` nunca é sobrescrito) e confira com `node tools/check-precos.js --tela`.
 
-O **prato do dia** troca sozinho todo dia (segunda a sexta, no horário de São Paulo). O **prato destaque** (prato do mês) é manual.
+O **prato do dia** troca sozinho todo dia (segunda a sexta, no horário de São Paulo).
 
 ## Pedido pelo WhatsApp
 

@@ -3,11 +3,11 @@
    JavaScript puro, sem dependências. Lê CARDAPIO e CONFIG (js/cardapio-data.js).
 
    Índice
-   1. Utilitários            6. Prato destaque
-   2. Fotos e placeholders   7. Monte sua massa (montador)
-   3. Configuração/contatos  8. Cardápio completo (em abas)
-   4. Prato do dia      9. Header, menu mobile, animações
-   5. Empanadas             10. Inicialização
+   1. Utilitários            7. Monte sua massa (montador)
+   2. Fotos e placeholders   8. Cardápio completo (em abas)
+   3. Configuração/contatos  9. Header, menu mobile, animações
+   4. Prato do dia          10. Inicialização
+   5. Empanadas
    ============================================================ */
 (function () {
   'use strict';
@@ -72,7 +72,6 @@
   const CAT_EMPANADAS = 'Da Itália à Argentina: Empanadas Argentinas';
   const CAT_PRATO_DO_DIA = 'Prato do dia';
   const CAT_MONTE = 'Monte sua massa';
-  const CAT_DESTAQUE = 'Prato destaque';
   const CAT_PER_DUE = 'Piatto per due';
 
   /* ---------- 2. Fotos e placeholders ----------
@@ -346,23 +345,6 @@
       criarPedir(it.id))));
   }
 
-  /* ---------- 6. Prato destaque ---------- */
-  const textoPratoDoMes = () => (CONFIG.pratoDoMes || '').trim() || 'consulte o prato deste mês';
-
-  function renderDestaque() {
-    const c = cat(CAT_DESTAQUE);
-    if (!c) return;
-    const mes = c.itens[0];
-
-    $('#prato-mes').replaceChildren(
-      el('div', { class: 'prato-mes__texto' },
-        el('p', { class: 'prato-mes__rot' }, minuscula(mes.nome)),
-        el('h3', { class: 'prato-mes__nome' }, textoPratoDoMes()),
-        el('p', { class: 'prato-mes__desc' }, mes.descricao),
-        criarPedir(mes.id)),
-      el('p', { class: 'preco-destaque' }, formatarReais(mes.preco)));
-  }
-
   /* ---------- 7. Monte sua massa ---------- */
   const ICONES_MASSA = {
     spaghetti: ['massa-spaghetti.png', 92, 35],
@@ -528,7 +510,6 @@
     [CAT_EMPANADAS]: { id: 'empanadas', chip: 'Empanadas', titulo: ['Da', 'Itália', 'à', 'Argentina'], duplo: true },
     [CAT_PRATO_DO_DIA]: { id: 'prato-dia', chip: 'Prato do dia', titulo: ['Prato do', 'dia'] },
     [CAT_MONTE]: { id: 'monte', chip: 'Monte sua massa', titulo: ['Monte sua', 'massa'] },
-    [CAT_DESTAQUE]: { id: 'destaque', chip: 'Prato destaque', titulo: ['Prato', 'destaque'] },
     'Panquecas Radici': { id: 'panquecas', chip: 'Panquecas', titulo: ['Panquecas', 'radici'] },
     'Risotto speciale': { id: 'risotto', chip: 'Risotto', titulo: ['Risotto', 'speciale'] },
     [CAT_PER_DUE]: { id: 'piatto-due', chip: 'Piatto per due', titulo: ['Piatto per', 'due'] },
@@ -540,8 +521,8 @@
   };
   const PREFIXO_CERVEJA = 'Cerveja lata - ';
 
-  // Frase de abertura de cada categoria. Empanadas, Prato do dia, Monte sua massa e Prato destaque
-  // já têm a sua na seção de destaque da página (index.html), então não se repetem aqui.
+  // Frase de abertura de cada categoria. Empanadas, Prato do dia e Monte sua massa
+  // já têm a sua na própria seção da página (index.html), então não se repetem aqui.
   const ABERTURAS = {
     'Antipasto': 'Para começar sem pressa.',
     'Panquecas Radici': 'Macias, generosas e com o recheio que você preferir.',
@@ -624,10 +605,6 @@
           lista,
           el('a', { class: 'link-seta', href: '#monte-sua-massa' }, 'Montar minha massa', svgUso('i-seta', 'icone icone--seta'))];
       }
-      case CAT_DESTAQUE:
-        return el('ul', { class: 'itens' }, itens.map((it, i) => itemDoMenu(it, {
-          extra: i === 0 ? el('p', { class: 'item__obs item__obs--mes' }, textoPratoDoMes()) : null,
-        })));
       case 'Panquecas Radici': {
         const [pedido, serve] = c.descricao.split(/\.\s+/);
         return [
@@ -897,7 +874,7 @@
   /* Cursivas nunca vazam da coluna: se uma palavra em Astina não couber (celular estreito,
      fonte ainda carregando, palavra longa), o tamanho encolhe só o necessário. */
   const CURSIVAS = '.ta-astina, .nome-significado__trad, .pdg-dia__dia, .sexta__somente, ' +
-    '.prato-mes__rot, .passo__sub, .item__rotulo, .subgrupo__titulo, .bilhete__titulo, .cat__astina, .resumo__titulo, ' +
+    '.passo__sub, .item__rotulo, .subgrupo__titulo, .bilhete__titulo, .cat__astina, .resumo__titulo, ' +
     '.carta__cursiva, .assinatura__texto, .rodape__obrigado';
 
   /* ---------- 9b. Alma: padrão vivo e título da aba ----------
@@ -963,7 +940,6 @@
     aplicarConfig();
     renderPratoDoDia();
     renderEmpanadas();
-    renderDestaque();
     montador();
     renderCardapio();
     $$('figure[data-foto]').forEach(iniciarFoto);

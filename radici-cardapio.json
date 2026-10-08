@@ -417,20 +417,6 @@
       ]
     },
     {
-      "categoria": "Prato destaque",
-      "itens": [
-        {
-          "id": "prato-do-mes",
-          "nome": "Prato do mês",
-          "descricao": "Todos os meses um prato destaque. Serve 1 pessoa.",
-          "preco": 47.9,
-          "categoriaPedido": "massas",
-          "pedivel": true,
-          "nomeConfig": "pratoDoMes"
-        }
-      ]
-    },
-    {
       "categoria": "Panquecas Radici",
       "descricao": "Escolha o recheio. Serve 1 pessoa.",
       "preco_unico": 34.9,

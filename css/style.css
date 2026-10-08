@@ -8,7 +8,7 @@
    Índice
     0. Fontes                     10. Prato do dia   
     1. Variáveis                  11. Empanadas
-    2. Base                       12. Prato destaque
+    2. Base
     3. Utilitários                13. Monte sua massa
     4. Título assinatura          14. Cardápio completo
     5. Botões e links             15. Nossa casa
@@ -565,21 +565,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 
 /* ==========================================================================
-   12. PRATO DESTAQUE
-   ========================================================================== */
-.prato-mes {
-  display: grid; gap: 1rem 2rem; align-items: center;
-  padding: clamp(1.5rem, 3vw, 2.25rem);
-  border: 1.5px solid var(--verde); border-radius: var(--r-caixa);
-}
-@media (min-width: 48rem) { .prato-mes { grid-template-columns: 1fr auto; } }
-.prato-mes__rot { font-family: var(--f-cursiva); color: var(--vinho); font-size: 1.875rem; line-height: 1.1; }
-.prato-mes__nome { margin-top: 0.25rem; font-size: clamp(1.5rem, 1.2rem + 1.3vw, 2.125rem); }
-.prato-mes__desc { margin-top: 0.5rem; }
-.preco-destaque { font-size: clamp(2rem, 1.5rem + 1.8vw, 2.75rem); line-height: 1; color: var(--vinho); }
-
-
-/* ==========================================================================
    13. MONTE SUA MASSA
    ========================================================================== */
 .monte { display: grid; gap: 2.5rem; align-items: start; }
@@ -760,7 +745,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .item__unid { font-size: 0.875rem; }
 .item__desc { max-width: 40rem; margin-top: 0.3rem; font-size: 1rem; }
 .item__obs { max-width: 40rem; margin-top: 0.2rem; font-size: 0.9375rem; }
-.item__obs--mes { font-size: 1.125rem; }
 .item__serve { margin-top: 0.2rem; font-size: 1.125rem; color: var(--vinho); }
 
 @media (min-width: 48rem) {

@@ -98,7 +98,7 @@
      js/horarios.js diz se estamos abertos e se é hora de almoço. Sem ele, nada é bloqueado nem avisado. */
   const HORARIOS = window.RadiciHorarios || null;
   const horarioAgora = () => (HORARIOS ? HORARIOS.estado() : null);
-  // Pratos de almoço = categoria "Massas e pratos" (prato do dia, monte sua massa, prato do mês, panquecas, risotto, piatto per due, PF aconchego, prato kids)
+  // Pratos de almoço = categoria "Massas e pratos" (prato do dia, monte sua massa, panquecas, risotto, piatto per due, PF aconchego, prato kids)
   const ehPratoDeAlmoco = (categoria) => categoria === 'massas';
   // "servido no almoço, das 11h às 14h": só aparece fora desse horário (não bloqueia nada)
   const avisoAlmoco = () => { const h = horarioAgora(); return h && !h.almoco ? h.avisoAlmoco : ''; };
@@ -145,7 +145,6 @@
   // Preço unitário do item com as opções escolhidas, em centavos (null = valor a confirmar)
   function unidadeCent(item, sel) {
     let p = item.preco == null ? null : cent(item.preco);
-    if (item.nomeConfig && !String(CONFIG[item.nomeConfig] || '').trim()) p = null; // prato do mês sem nome
     for (const g of item.opcoes) {
       if (g.tipo !== 'unica') continue;
       const o = g.itens.find((x) => x.nome === sel[g.id]);
@@ -267,10 +266,6 @@
     const item = ITENS.get(l.id);
     let nome = item.nomePedido || item.nome;
     const partes = [];
-    if (item.nomeConfig) { // prato do mês: o nome vem do campo editável
-      const v = String(CONFIG[item.nomeConfig] || '').trim();
-      if (v) partes.push(v); else nome += ' (consultar)';
-    }
     for (const g of item.opcoes) {
       const v = l.sel[g.id];
       if (v == null || v === '') continue;

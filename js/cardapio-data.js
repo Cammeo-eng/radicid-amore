@@ -1,18 +1,17 @@
 /* ============================================================
    RADICI D'AMORE · DADOS DO SITE
 
-   COMO ATUALIZAR (5 linhas)
-   1. Prato do mês ....... escreva o nome em CONFIG.pratoDoMes (abaixo). Vazio = "consulte o prato deste mês".
-   2. Prato do dia ....... edite o dia em CARDAPIO > "Prato do dia" > itens (nome e descricao). O site
+   COMO ATUALIZAR (4 linhas)
+   1. Prato do dia ....... edite o dia em CARDAPIO > "Prato do dia" > itens (nome e descricao). O site
                            destaca sozinho o prato de hoje (fuso America/Sao_Paulo).
-   3. Preços ............. edite o NÚMERO do preço no próprio item (ex.: "preco": 10  ou  "preco": 31.9, com
+   2. Preços ............. edite o NÚMERO do preço no próprio item (ex.: "preco": 10  ou  "preco": 31.9, com
                            ponto, sem "R$"). O preço é escrito uma vez só: o cardápio, o "Monte sua massa" e o
                            pedido (sacola e WhatsApp) leem o mesmo valor. "preco": null = "Consultar".
                            Itens sem "preco" herdam o "preco_unico" da categoria (empanadas, prato do dia, panquecas).
-   4. Fluxo recomendado: edite o radici-cardapio.json e rode  node tools/gerar-cardapio-data.js
+   3. Fluxo recomendado: edite o radici-cardapio.json e rode  node tools/gerar-cardapio-data.js
       (o bloco CONFIG daqui nunca é sobrescrito). Sem Node? Edite direto o cardápio abaixo, mas
       então NÃO rode o gerador, ou ele volta ao que está no JSON.
-   5. Confira JSON x site:  node tools/check-precos.js
+   4. Confira JSON x site:  node tools/check-precos.js
 
    CAMPOS DO PEDIDO (cada item do cardápio)
    id ............. único, sem acento (ex.: "bolinho-de-carne-assado")
@@ -36,14 +35,10 @@
                     Fora deles o botão fica desativado ("disponível de segunda a sexta") e, se o item já estava na
                     sacola, ele fica marcado em vinho e o envio é bloqueado até o cliente removê-lo (ex.: PF aconchego)
    diasRotulo ..... os mesmos dias em texto, usado nos avisos: "segunda a sexta"
-   nomeConfig ..... o nome vem de CONFIG (ex.: Prato do mês -> CONFIG.pratoDoMes; vazio = valor a confirmar)
    {acrescimo} .... dentro de "obs": vira "R$ 5" a partir do preço da opção (o valor nunca é escrito duas vezes)
    ============================================================ */
 
 const CONFIG = {
-  // Prato do mês (R$ 47,90). Ex.: "Lasanha de abóbora com ricota". Vazio mostra "consulte o prato deste mês".
-  pratoDoMes: "",
-
   // Contatos
   whatsappNumero: "5541984867724",       // só dígitos, com 55 + DDD (recebe os pedidos enviados pela sacola)
   instagramUrl: "https://instagram.com/radicidamore",
@@ -68,9 +63,10 @@ const CONFIG = {
 
 // PRATO COROADO: removido a pedido da cliente, pode voltar no futuro
 // (fica aqui, acima da linha do gerador, para não ser apagado quando rodar tools/gerar-cardapio-data.js).
-// Para reativar: acrescente o item abaixo em "Prato destaque" no radici-cardapio.json (ao lado do "Prato do mês"),
-// rode node tools/gerar-cardapio-data.js, coloque a foto em fotos/ravioli-carne-desfiada.jpg e recoloque o bloco
-// visual no js/main.js (o desenho antigo está no histórico do git, commit 2d97166, função do prato destaque).
+// Para reativar: primeiro recrie a categoria "Prato destaque" (veja o bloco PRATO DO MÊS logo abaixo), depois acrescente o
+// item abaixo nela no radici-cardapio.json, rode node tools/gerar-cardapio-data.js, coloque a foto em
+// fotos/ravioli-carne-desfiada.jpg e recoloque o bloco visual no js/main.js (o desenho antigo está no histórico do git,
+// commit 2d97166, função do prato destaque).
 //   {
 //     "id": "ravioli-carne-desfiada",
 //     "nome": "Ravioli de carne desfiada",
@@ -80,6 +76,32 @@ const CONFIG = {
 //     "categoriaPedido": "massas",
 //     "pedivel": true
 //   },
+
+// PRATO DO MÊS: removido a pedido da cliente, pode voltar no futuro
+// (fica aqui, acima da linha do gerador, para não ser apagado quando rodar tools/gerar-cardapio-data.js).
+// Para reativar: (1) devolva o campo "pratoDoMes" ao CONFIG, acima; (2) acrescente a categoria abaixo no radici-cardapio.json,
+// entre "Monte sua massa" e "Panquecas Radici", e rode node tools/gerar-cardapio-data.js; (3) recoloque a seção no index.html
+// (entre Empanadas e Mensagem da família), o bloco visual e o chip da aba no js/main.js, a regra "nomeConfig" (preço a confirmar e
+// nome vindo do CONFIG) no js/pedido.js e a seção 12 do css/style.css. Tudo isso está no histórico do git (commit bb86faf).
+//   CONFIG:
+//     // Prato do mês (R$ 47,90). Ex.: "Lasanha de abóbora com ricota". Vazio mostra "consulte o prato deste mês".
+//     pratoDoMes: "",
+//   Categoria do cardápio:
+//   {
+//     "categoria": "Prato destaque",
+//     "itens": [
+//       {
+//         "id": "prato-do-mes",
+//         "nome": "Prato do mês",
+//         "descricao": "Todos os meses um prato destaque. Serve 1 pessoa.",
+//         "preco": 47.9,
+//         "categoriaPedido": "massas",
+//         "pedivel": true,
+//         "nomeConfig": "pratoDoMes"
+//       }
+//     ]
+//   },
+//   Texto de apoio da seção: "O prato que a gente escolhe com carinho a cada mês."
 
 /* ===== CARDÁPIO · gerado de radici-cardapio.json (não edite abaixo desta linha) ===== */
 const CARDAPIO = {
@@ -497,20 +519,6 @@ const CARDAPIO = {
           "id": "monte-adicional-contrafile",
           "nome": "Contrafilé",
           "preco": 23
-        }
-      ]
-    },
-    {
-      "categoria": "Prato destaque",
-      "itens": [
-        {
-          "id": "prato-do-mes",
-          "nome": "Prato do mês",
-          "descricao": "Todos os meses um prato destaque. Serve 1 pessoa.",
-          "preco": 47.9,
-          "categoriaPedido": "massas",
-          "pedivel": true,
-          "nomeConfig": "pratoDoMes"
         }
       ]
     },
